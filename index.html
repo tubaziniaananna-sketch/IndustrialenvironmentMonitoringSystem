@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lab Monitor Pro | Sky Edition</title>
+    <title>Lab Monitor Pro | Sky Edition v2</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
@@ -114,7 +114,7 @@
                         </div>
                         <div class="text-center mt-2">
                             <h2 class="display-4 mb-0 fw-bold"><span id="valTemp">--</span><small class="fs-4 text-muted">°C</small></h2>
-                            <p class="text-muted small mt-2">Limit: <span class="text-primary fw-bold">30.0°C</span></p>
+                            <p class="text-muted small mt-2">Cooling Fan Trigger: <span class="text-primary fw-bold">30.0°C</span></p>
                         </div>
                     </div>
                 </div>
@@ -136,6 +136,32 @@
                 </div>
 
                 <div class="col-md-6">
+                    <div id="cardVib" class="card h-100 p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h6 class="text-muted fw-bold text-uppercase"><i class="bi bi-activity me-2"></i>Vibration</h6>
+                            <span class="badge bg-light">SW-420</span>
+                        </div>
+                        <div class="text-center mt-2">
+                            <h3 id="valVib" class="display-6 mb-0 fw-bold text-muted">CLEAR</h3>
+                            <p class="text-muted small mt-3">Machine Monitoring</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div id="cardMotion" class="card h-100 p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h6 class="text-muted fw-bold text-uppercase"><i class="bi bi-person-walking me-2"></i>Motion</h6>
+                            <span class="badge bg-light">PIR</span>
+                        </div>
+                        <div class="text-center mt-2">
+                            <h3 id="valMotion" class="display-6 mb-0 fw-bold text-muted">CLEAR</h3>
+                            <p class="text-muted small mt-3">Intrusion Detection</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
                     <div class="card h-100 p-4">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h6 class="text-muted fw-bold text-uppercase"><i class="bi bi-fire me-2"></i>Combustible</h6>
@@ -146,7 +172,7 @@
                             <div class="progress mt-4 mb-2" style="height: 8px; border-radius: 10px;">
                                 <div id="barSmoke" class="progress-bar bg-warning" role="progressbar" style="width: 0%"></div>
                             </div>
-                            <p class="text-muted small">LPG / Smoke / Propane</p>
+                            <p class="text-muted small">LPG / Smoke</p>
                         </div>
                     </div>
                 </div>
@@ -162,7 +188,7 @@
                             <div class="progress mt-4 mb-2" style="height: 8px; border-radius: 10px;">
                                 <div id="barGas" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
                             </div>
-                            <p class="text-muted small">CO2 / NH3 / Smoke</p>
+                            <p class="text-muted small">CO2 / NH3</p>
                         </div>
                     </div>
                 </div>
@@ -178,24 +204,35 @@
 
                 <div class="card-body text-center p-4 d-flex flex-column justify-content-center">
 
-                    <div class="mb-5">
-                        <div id="mainStatusBadge" class="badge bg-success w-100 p-4 mb-5 fs-5 shadow-sm">
+                    <div class="mb-4">
+                        <div id="mainStatusBadge" class="badge bg-success w-100 p-4 mb-4 fs-5 shadow-sm">
                             SYSTEM SECURE
                         </div>
 
-                        <div class="row align-items-center g-4">
+                        <div class="row align-items-center g-4 mb-4">
                             <div class="col-6 border-end" style="border-color: var(--accent-border) !important;">
-                                <small class="text-muted d-block mb-3 font-monospace">FAN STATUS</small>
-                                <i id="fanIcon" class="bi bi-fan" style="font-size: 3rem; color: var(--fan-color);"></i>
-                                <p id="fanText" class="fw-bold mt-3 text-muted small mb-0">OFF</p>
+                                <small class="text-muted d-block mb-2 font-monospace" style="font-size: 0.7rem;">EXHAUST FAN</small>
+                                <i id="fanIcon" class="bi bi-fan" style="font-size: 2.5rem; color: var(--fan-color);"></i>
+                                <p id="fanText" class="fw-bold mt-2 text-muted small mb-0">OFF</p>
                             </div>
 
                             <div class="col-6">
-                                <small class="text-muted d-block mb-3 font-monospace">WATER STATUS</small>
-                                <i id="sprinklerIcon" class="bi bi-moisture" style="font-size: 3rem; color: var(--fan-color);"></i>
-                                <p id="sprinklerText" class="fw-bold mt-3 text-muted small mb-0">OFF</p>
+                                <small class="text-muted d-block mb-2 font-monospace" style="font-size: 0.7rem;">SPRINKLER</small>
+                                <i id="sprinklerIcon" class="bi bi-moisture" style="font-size: 2.5rem; color: var(--fan-color);"></i>
+                                <p id="sprinklerText" class="fw-bold mt-2 text-muted small mb-0">OFF</p>
                             </div>
                         </div>
+
+                        <hr style="border-top: 1px solid var(--accent-border); opacity: 0.5;">
+
+                        <div class="row align-items-center g-4 mt-1">
+                            <div class="col-12">
+                                <small class="text-muted d-block mb-2 font-monospace" style="font-size: 0.7rem;">COOLING FAN</small>
+                                <i id="coolFanIcon" class="bi bi-snow" style="font-size: 2.5rem; color: var(--fan-color);"></i>
+                                <p id="coolFanText" class="fw-bold mt-2 text-muted small mb-0">OFF</p>
+                            </div>
+                        </div>
+
                     </div>
 
                     <div class="mt-auto">
@@ -220,7 +257,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
     import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
-    // --- REPLACE WITH YOUR CONFIG ---
     const firebaseConfig = {
         apiKey: "YOUR_API_KEY",
         authDomain: "YOUR_ID.firebaseapp.com",
@@ -239,58 +275,102 @@
         const data = snapshot.val();
 
         if (data) {
-            // 1. UPDATE NUMERICAL VALUES
+            // 1. UPDATE SENSORS
             document.getElementById('valTemp').innerText = data.temp ? data.temp.toFixed(1) : "--";
             document.getElementById('valHum').innerText = data.humidity ? data.humidity.toFixed(0) : "--";
             document.getElementById('valGas').innerText = data.gas_ppm ? data.gas_ppm : "--";
-            document.getElementById('valSmoke').innerText = data.smoke_ppm ? data.smoke_ppm : "--"; // Assumed key for MQ2
+            document.getElementById('valSmoke').innerText = data.smoke_ppm ? data.smoke_ppm : "--";
             document.getElementById('lastUpdated').innerText = new Date().toLocaleTimeString();
 
-            // 2. UPDATE PROGRESS BARS
+            // Progress Bars
             let humPercent = data.humidity ? data.humidity : 0;
             document.getElementById('barHum').style.width = humPercent + "%";
-
             let gasPercent = Math.min((data.gas_ppm / 1000) * 100, 100);
             document.getElementById('barGas').style.width = gasPercent + "%";
-
             let smokePercent = Math.min((data.smoke_ppm / 1000) * 100, 100);
             document.getElementById('barSmoke').style.width = smokePercent + "%";
 
-            // 3. LOGIC ELEMENTS
+            // --- 2. NEW SENSORS: VIBRATION & MOTION ---
+            const valVib = document.getElementById('valVib');
+            const cardVib = document.getElementById('cardVib');
+            if (data.vibration == 1) {
+                valVib.innerText = "DETECTED!";
+                valVib.classList.remove('text-muted');
+                valVib.classList.add('text-danger');
+                cardVib.style.border = "1px solid #ef4444";
+            } else {
+                valVib.innerText = "CLEAR";
+                valVib.classList.add('text-muted');
+                valVib.classList.remove('text-danger');
+                cardVib.style.border = "1px solid #bae6fd";
+            }
+
+            const valMotion = document.getElementById('valMotion');
+            const cardMotion = document.getElementById('cardMotion');
+            if (data.motion == 1) {
+                valMotion.innerText = "ACTIVITY";
+                valMotion.classList.remove('text-muted');
+                valMotion.classList.add('text-warning');
+                cardMotion.style.border = "1px solid #f59e0b";
+            } else {
+                valMotion.innerText = "CLEAR";
+                valMotion.classList.add('text-muted');
+                valMotion.classList.remove('text-warning');
+                cardMotion.style.border = "1px solid #bae6fd";
+            }
+
+            // --- 3. LOGIC & ACTIONS ---
             const cardAlert = document.getElementById('cardAlert');
             const headerAlert = document.getElementById('headerAlert');
             const statusBadge = document.getElementById('mainStatusBadge');
+            const btnSilence = document.getElementById('btnSilence');
+            const badgeAir = document.getElementById('badgeAir');
+
+            // ICONS
             const fanIcon = document.getElementById('fanIcon');
             const fanText = document.getElementById('fanText');
             const sprinklerIcon = document.getElementById('sprinklerIcon');
             const sprinklerText = document.getElementById('sprinklerText');
-            const btnSilence = document.getElementById('btnSilence');
-            const badgeAir = document.getElementById('badgeAir');
+            const coolFanIcon = document.getElementById('coolFanIcon');
+            const coolFanText = document.getElementById('coolFanText');
 
-            // CRITICAL CHECK LOGIC
-            const isCritical = data.countermeasure_status === true || data.temp > 30 || data.gas_ppm > 400;
+            // --- COOLING FAN LOGIC (Temp > 30) ---
+            if (data.temp > 30.0) {
+                coolFanIcon.className = "bi bi-snow text-primary spin-active";
+                coolFanIcon.style.color = "#0ea5e9"; // Sky blue
+                coolFanText.innerText = "ACTIVE";
+                coolFanText.className = "fw-bold mt-2 text-primary small mb-0";
+            } else {
+                coolFanIcon.className = "bi bi-snow";
+                coolFanIcon.style.color = "var(--fan-color)";
+                coolFanText.innerText = "STANDBY";
+                coolFanText.className = "fw-bold mt-2 text-muted small mb-0";
+            }
 
-            if (isCritical) {
-                // HAZARD MODE
+            // --- HAZARD LOGIC (Gas/Smoke/Manual) ---
+            const isHazard = data.countermeasure_status === true || data.gas_ppm > 400 || data.smoke_ppm > 400;
+
+            if (isHazard) {
+                // *** HAZARD STATE ***
                 cardAlert.className = "card h-100 shadow-lg pulse-active";
                 cardAlert.style.border = "1px solid #ef4444"; 
-
                 headerAlert.className = "card-header bg-danger text-white text-center fw-bold py-3";
                 headerAlert.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i>CRITICAL';
-
-                statusBadge.className = "badge bg-danger w-100 p-4 mb-5 fs-5";
+                statusBadge.className = "badge bg-danger w-100 p-4 mb-4 fs-5";
                 statusBadge.innerText = "HAZARD DETECTED";
 
+                // Exhaust Fan ON
                 fanIcon.className = "bi bi-fan text-danger spin-active"; 
                 fanIcon.style.color = "#ef4444";
                 fanText.innerText = "ACTIVE";
-                fanText.className = "fw-bold mt-3 text-danger small mb-0";
+                fanText.className = "fw-bold mt-2 text-danger small mb-0";
 
-                if(data.temp > 50 || data.gas_ppm > 800) {
+                // Sprinkler Check (Extreme conditions)
+                if(data.temp > 50 || data.smoke_ppm > 800) {
                     sprinklerIcon.className = "bi bi-droplet-fill text-primary";
                     sprinklerIcon.style.color = "#3b82f6"; 
                     sprinklerText.innerText = "ACTIVE";
-                    sprinklerText.className = "fw-bold mt-3 text-primary small mb-0";
+                    sprinklerText.className = "fw-bold mt-2 text-primary small mb-0";
                 }
 
                 badgeAir.className = "badge bg-danger";
@@ -302,25 +382,23 @@
                 }
 
             } else {
-                // SAFE MODE
+                // *** SAFE STATE ***
                 cardAlert.className = "card h-100";
                 cardAlert.style.border = "1px solid #bae6fd"; 
-
                 headerAlert.className = "card-header bg-transparent text-muted text-center fw-bold py-3 border-bottom";
                 headerAlert.innerHTML = '<i class="bi bi-shield-check me-2"></i>SYSTEM LOGIC';
-
-                statusBadge.className = "badge bg-success w-100 p-4 mb-5 fs-5 shadow-sm";
+                statusBadge.className = "badge bg-success w-100 p-4 mb-4 fs-5 shadow-sm";
                 statusBadge.innerText = "SYSTEM SECURE";
 
                 fanIcon.className = "bi bi-fan";
                 fanIcon.style.color = "var(--fan-color)"; 
                 fanText.innerText = "STANDBY";
-                fanText.className = "fw-bold mt-3 text-muted small mb-0";
+                fanText.className = "fw-bold mt-2 text-muted small mb-0";
 
                 sprinklerIcon.className = "bi bi-moisture";
                 sprinklerIcon.style.color = "var(--fan-color)"; 
                 sprinklerText.innerText = "STANDBY";
-                sprinklerText.className = "fw-bold mt-3 text-muted small mb-0";
+                sprinklerText.className = "fw-bold mt-2 text-muted small mb-0";
 
                 badgeAir.className = "badge bg-success";
                 badgeAir.innerText = "MQ-135";
