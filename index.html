@@ -3,166 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Industrial Monitor | Sky Edition v3</title>
+    <title>Industrial Monitor | Alert & Status</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 
     <style>
-        :root {
-            --bg-body: #f0f9ff;
-            --bg-card: #ffffff;
-            --text-main: #0c4a6e;
-            --text-muted: #64748b;
-            --accent-border: #bae6fd;
-            --fan-color: #cbd5e1;
-        }
-
-        body { 
-            background-color: var(--bg-body); 
-            color: var(--text-main);
-            font-family: 'Segoe UI', sans-serif; 
-            -webkit-font-smoothing: antialiased;
-        }
-
-        .card { 
-            background-color: var(--bg-card); 
-            border: 1px solid var(--accent-border); 
-            border-radius: 16px; 
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); 
-        }
-
-        .badge.bg-light { 
-            background-color: #e0f2fe !important; 
-            color: #0284c7 !important; 
-            border: 1px solid #bae6fd !important;
-        }
+        :root { --bg-body: #f1f5f9; --card-bg: #ffffff; --primary: #0284c7; }
+        body { background-color: var(--bg-body); font-family: 'Inter', sans-serif; transition: background 0.5s ease; }
+        .card { border-radius: 12px; border: none; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .alert-active { background-color: #fef2f2 !important; border: 2px solid #ef4444 !important; }
+        .badge-status { padding: 8px 12px; border-radius: 6px; font-size: 0.8rem; }
         
-        .progress { background-color: #e2e8f0; overflow: hidden; }
-
-        .btn-3d {
-            background: linear-gradient(to bottom, #ef4444, #dc2626);
-            color: white;
-            font-weight: bold;
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 6px 0 #991b1b;
-            transition: all 0.1s ease;
-        }
-
-        .btn-3d:active { transform: translateY(4px); box-shadow: 0 2px 0 #991b1b; }
-        .btn-3d:disabled { background: #f1f5f9; color: #94a3b8; box-shadow: none; transform: translateY(4px); }
-
-        .system-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1rem 0.5rem;
-            border-bottom: 1px solid var(--accent-border);
-        }
-
+        /* Animation for active alerts */
+        @keyframes pulse-red { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .active-red { color: #ef4444; animation: pulse-red 1s infinite; }
+        .active-fan { animation: spin 2s linear infinite; color: #0ea5e9; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        .spin-active { animation: spin 0.8s linear infinite; }
-
-        @keyframes pulse-red {
-            0% { border-color: rgba(239, 68, 68, 0.8); }
-            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
-            100% { border-color: rgba(239, 68, 68, 0.8); }
-        }
-        .pulse-active { animation: pulse-red 2s infinite; }
+        
+        #globalAlertBanner { display: none; }
     </style>
 </head>
 <body>
 
+<div id="globalAlertBanner" class="py-3 bg-danger text-white text-center fw-bold shadow-lg">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i> EMERGENCY ALERT DETECTED IN DEVICE-1
+</div>
+
 <div class="container py-5">
-    <div class="row mb-5 text-center">
+    <div class="row mb-4">
         <div class="col-12">
-            <h1 class="fw-bold display-5" style="color: #0284c7;">
-                <i class="bi bi-clouds-fill me-2"></i>Lab Monitor <span style="font-weight: 300;">Sky</span>
-            </h1>
-            <p class="text-muted">Device-1 Status Panel</p>
+            <h2 class="fw-bold text-dark"><i class="bi bi-broadcast me-2 text-primary"></i>Device-1 Real-time Panel</h2>
+            <p class="text-muted">Fetching data from <code>Device-1/Status</code> and <code>Device-1/Alert</code></p>
         </div>
     </div>
 
     <div class="row g-4">
         <div class="col-lg-8">
-            <div class="row g-4">
+            <div class="row g-3">
                 <div class="col-md-6">
-                    <div class="card h-100 p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h6 class="text-muted fw-bold text-uppercase ls-1"><i class="bi bi-thermometer-half me-2"></i>Temp</h6>
-                            <span class="badge bg-light">DHT-22</span>
-                        </div>
-                        <div class="text-center mt-2">
-                            <h2 class="display-4 mb-0 fw-bold"><span id="valTemp">--</span><small class="fs-4 text-muted">°C</small></h2>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="card h-100 p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h6 class="text-muted fw-bold text-uppercase ls-1"><i class="bi bi-droplet-half me-2"></i>Humidity</h6>
-                            <span class="badge bg-light">DHT-22</span>
-                        </div>
-                        <div class="text-center mt-2">
-                            <h2 class="display-4 mb-0 fw-bold"><span id="valHum">--</span><small class="fs-4 text-muted"> %</small></h2>
-                            <div class="progress mt-4 mb-2" style="height: 6px; border-radius: 10px;">
-                                <div id="barHum" class="progress-bar bg-info" style="width: 0%"></div>
+                    <div class="card p-4 h-100">
+                        <small class="text-muted text-uppercase fw-bold">Environment</small>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div>
+                                <h1 class="display-5 fw-bold mb-0"><span id="valTemp">--</span><small class="fs-4">°C</small></h1>
+                                <p class="text-muted mb-0">Temperature</p>
+                            </div>
+                            <div>
+                                <h1 class="display-5 fw-bold mb-0"><span id="valHum">--</span><small class="fs-4">%</small></h1>
+                                <p class="text-muted mb-0">Humidity</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-md-6">
-                    <div id="cardVib" class="card h-100 p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h6 class="text-muted fw-bold text-uppercase"><i class="bi bi-activity me-2"></i>Vibration</h6>
-                            <span class="badge bg-light">SW-420</span>
-                        </div>
-                        <div class="text-center mt-2">
-                            <h3 id="valVib" class="display-6 mb-0 fw-bold text-muted">CLEAR</h3>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div id="cardMotion" class="card h-100 p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h6 class="text-muted fw-bold text-uppercase"><i class="bi bi-person-walking me-2"></i>Motion</h6>
-                            <span class="badge bg-light">PIR</span>
-                        </div>
-                        <div class="text-center mt-2">
-                            <h3 id="valMotion" class="display-6 mb-0 fw-bold text-muted">CLEAR</h3>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="card h-100 p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h6 class="text-muted fw-bold text-uppercase"><i class="bi bi-fire me-2"></i>Combustible</h6>
-                            <span class="badge bg-warning text-dark">MQ-2</span>
-                        </div>
-                        <div class="text-center mt-2">
-                            <h2 class="display-4 mb-0 fw-bold"><span id="valSmoke">--</span><small class="fs-4 text-muted"> PPM</small></h2>
-                            <div class="progress mt-4 mb-2" style="height: 8px; border-radius: 10px;">
-                                <div id="barSmoke" class="progress-bar bg-warning" style="width: 0%"></div>
+                    <div class="card p-4 h-100">
+                        <small class="text-muted text-uppercase fw-bold">Air Composition</small>
+                        <div class="mt-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>MQ-135 (Air)</span>
+                                <span class="fw-bold" id="valMQ135">--</span>
+                            </div>
+                            <div class="progress mb-3" style="height: 8px;">
+                                <div id="barMQ135" class="progress-bar bg-success" style="width: 0%"></div>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>MQ-2 (Smoke)</span>
+                                <span class="fw-bold" id="valMQ2">--</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div id="barMQ2" class="progress-bar bg-warning" style="width: 0%"></div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-md-6">
-                    <div class="card h-100 p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h6 class="text-muted fw-bold text-uppercase"><i class="bi bi-cloud-haze2 me-2"></i>Air Quality</h6>
-                            <span class="badge bg-success">MQ-135</span>
+                    <div class="card p-4">
+                        <div class="d-flex align-items-center">
+                            <i id="iconPIR" class="bi bi-person-walking fs-1 me-3 text-muted"></i>
+                            <div>
+                                <h5 class="mb-0 fw-bold" id="txtPIR">NO MOTION</h5>
+                                <small class="text-muted">PIR Sensor Status</small>
+                            </div>
                         </div>
-                        <div class="text-center mt-2">
-                            <h2 class="display-4 mb-0 fw-bold"><span id="valGas">--</span><small class="fs-4 text-muted"> PPM</small></h2>
-                            <div class="progress mt-4 mb-2" style="height: 8px; border-radius: 10px;">
-                                <div id="barGas" class="progress-bar bg-success" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card p-4">
+                        <div class="d-flex align-items-center">
+                            <i id="iconVib" class="bi bi-activity fs-1 me-3 text-muted"></i>
+                            <div>
+                                <h5 class="mb-0 fw-bold" id="txtVib">STABLE</h5>
+                                <small class="text-muted">Vibration Sensor Status</small>
                             </div>
                         </div>
                     </div>
@@ -171,40 +106,43 @@
         </div>
 
         <div class="col-lg-4">
-            <div id="cardAlert" class="card h-100"> 
-                <div class="card-header bg-transparent text-muted text-center fw-bold py-3 border-bottom">
-                    SYSTEM LOGIC
+            <div class="card h-100">
+                <div class="card-header bg-white py-3">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-shield-lock me-2"></i>Control & Alerts</h6>
                 </div>
-                <div class="card-body p-4 d-flex flex-column">
-                    <div id="mainStatusBadge" class="badge bg-success w-100 p-3 mb-4 fs-5">SYSTEM SECURE</div>
-
-                    <div class="system-item">
-                        <div class="d-flex align-items-center">
-                            <i id="fanIcon" class="bi bi-fan fs-2 me-3" style="color: var(--fan-color);"></i>
-                            <div><h6 class="mb-0 fw-bold">Exhaust Fan</h6></div>
+                <div class="card-body p-0">
+                    <div class="p-4 border-bottom">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0 fw-bold">Cooling Fan</h6>
+                                <small id="lblCooling" class="text-muted">Standby</small>
+                            </div>
+                            <i id="iconCooling" class="bi bi-snow fs-2 text-muted"></i>
                         </div>
-                        <div id="fanText" class="badge bg-light text-muted border">OFF</div>
                     </div>
 
-                    <div class="system-item">
-                        <div class="d-flex align-items-center">
-                            <i id="coolFanIcon" class="bi bi-snow fs-2 me-3" style="color: var(--fan-color);"></i>
-                            <div><h6 class="mb-0 fw-bold">Cooling Fan</h6></div>
+                    <div class="p-4 border-bottom">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0 fw-bold">Exhaust Fan</h6>
+                                <small id="lblExFan" class="text-muted">Standby</small>
+                            </div>
+                            <i id="iconExFan" class="bi bi-fan fs-2 text-muted"></i>
                         </div>
-                        <div id="coolFanText" class="badge bg-light text-muted border">OFF</div>
                     </div>
 
-                    <div class="system-item">
-                        <div class="d-flex align-items-center">
-                            <i id="sprinklerIcon" class="bi bi-moisture fs-2 me-3" style="color: var(--fan-color);"></i>
-                            <div><h6 class="mb-0 fw-bold">Sprinkler</h6></div>
+                    <div class="p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0 fw-bold">Sprinkler</h6>
+                                <small id="lblSprinkler" class="text-muted">Inactive</small>
+                            </div>
+                            <i id="iconSprinkler" class="bi bi-droplet fs-2 text-muted"></i>
                         </div>
-                        <div id="sprinklerText" class="badge bg-light text-muted border">OFF</div>
                     </div>
-
-                    <div class="mt-auto">
-                        <button id="btnSilence" class="btn-3d w-100 py-4 fs-5" onclick="silenceAlarm()" disabled>SILENCE</button>
-                    </div>
+                </div>
+                <div class="card-footer bg-light p-3 text-center">
+                    <small class="text-muted">Last Data Sync: <span id="syncTime">--</span></small>
                 </div>
             </div>
         </div>
@@ -213,7 +151,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-    import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDO3vqJGU-DfvdbNxN9wYj_7yzVQMtOAcY",
@@ -227,70 +165,66 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    // Path adjusted to your structure: Device-1/Status
-    const dataRef = ref(db, 'Device-1/Status'); 
 
-    onValue(dataRef, (snapshot) => {
+    // 1. WATCH STATUS PATH
+    const statusRef = ref(db, 'Device-1/Status');
+    onValue(statusRef, (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
 
-        // Map Firebase keys to UI
-        const temp = parseFloat(data.Temp) || 0;
-        const hum = parseFloat(data.Hum) || 0;
-        const gas = parseInt(data["MQ-135"]) || 0;
-        const smoke = parseInt(data["MQ-2"]) || 0;
-        const pir = data.PIR;
-        const vib = data.Vibration;
+        document.getElementById('valTemp').innerText = data.Temp || "0";
+        document.getElementById('valHum').innerText = data.Hum || "0";
+        document.getElementById('valMQ135').innerText = data["MQ-135"] || "0";
+        document.getElementById('valMQ2').innerText = data["MQ-2"] || "0";
 
-        document.getElementById('valTemp').innerText = temp || "--";
-        document.getElementById('valHum').innerText = hum || "--";
-        document.getElementById('valGas').innerText = gas || "--";
-        document.getElementById('valSmoke').innerText = smoke || "--";
+        // Progress bars
+        document.getElementById('barMQ135').style.width = Math.min((data["MQ-135"]/1024)*100, 100) + "%";
+        document.getElementById('barMQ2').style.width = Math.min((data["MQ-2"]/1024)*100, 100) + "%";
 
-        document.getElementById('barHum').style.width = hum + "%";
-        document.getElementById('barGas').style.width = Math.min((gas/1000)*100, 100) + "%";
-        document.getElementById('barSmoke').style.width = Math.min((smoke/1000)*100, 100) + "%";
+        // PIR Motion
+        const pirActive = data.PIR == "1" || data.PIR == 1;
+        document.getElementById('txtPIR').innerText = pirActive ? "MOTION DETECTED" : "NO MOTION";
+        document.getElementById('iconPIR').className = pirActive ? "bi bi-person-walking fs-1 me-3 active-red" : "bi bi-person-walking fs-1 me-3 text-muted";
 
-        // Vibration/Motion UI logic
-        const vibEl = document.getElementById('valVib');
-        vibEl.innerText = (vib == "1" || vib == 1) ? "DETECTED!" : "CLEAR";
-        vibEl.className = (vib == "1") ? "display-6 mb-0 fw-bold text-danger" : "display-6 mb-0 fw-bold text-muted";
-
-        const motEl = document.getElementById('valMotion');
-        motEl.innerText = (pir == "1" || pir == 1) ? "ACTIVITY" : "CLEAR";
-        motEl.className = (pir == "1") ? "display-6 mb-0 fw-bold text-warning" : "display-6 mb-0 fw-bold text-muted";
-
-        // Logic Controls
-        const coolFanIcon = document.getElementById('coolFanIcon');
-        if (temp > 30) {
-            coolFanIcon.className = "bi bi-snow fs-2 text-primary spin-active";
-            document.getElementById('coolFanText').innerText = "ON";
-            document.getElementById('coolFanText').className = "badge bg-primary";
-        } else {
-            coolFanIcon.className = "bi bi-snow fs-2";
-            document.getElementById('coolFanText').innerText = "OFF";
-            document.getElementById('coolFanText').className = "badge bg-light text-muted border";
-        }
-
-        const isHazard = (gas > 400 || smoke > 400);
-        if (isHazard) {
-            document.getElementById('cardAlert').classList.add('pulse-active');
-            document.getElementById('mainStatusBadge').className = "badge bg-danger w-100 p-3 mb-4 fs-5";
-            document.getElementById('mainStatusBadge').innerText = "HAZARD";
-            document.getElementById('fanIcon').className = "bi bi-fan text-danger spin-active fs-2";
-            document.getElementById('btnSilence').disabled = false;
-        } else {
-            document.getElementById('cardAlert').classList.remove('pulse-active');
-            document.getElementById('mainStatusBadge').className = "badge bg-success w-100 p-3 mb-4 fs-5";
-            document.getElementById('mainStatusBadge').innerText = "SECURE";
-            document.getElementById('fanIcon').className = "bi bi-fan fs-2";
-            document.getElementById('btnSilence').disabled = true;
-        }
+        // Vibration
+        const vibActive = data.Vibration == "1" || data.Vibration == 1;
+        document.getElementById('txtVib').innerText = vibActive ? "VIBRATION DETECTED" : "STABLE";
+        document.getElementById('iconVib').className = vibActive ? "bi bi-activity fs-1 me-3 active-red" : "bi bi-activity fs-1 me-3 text-muted";
+        
+        document.getElementById('syncTime').innerText = new Date().toLocaleTimeString();
     });
 
-    window.silenceAlarm = function() {
-        update(dataRef, { "ManualSilence": true });
-    }
+    // 2. WATCH ALERT PATH
+    const alertRef = ref(db, 'Device-1/Alert');
+    onValue(alertRef, (snapshot) => {
+        const alerts = snapshot.val();
+        if (!alerts) return;
+
+        // Global Alert Banner
+        const banner = document.getElementById('globalAlertBanner');
+        if (alerts.IsAlert === true || alerts.IsAlert === "true") {
+            banner.style.display = 'block';
+            document.body.style.backgroundColor = '#fecaca';
+        } else {
+            banner.style.display = 'none';
+            document.body.style.backgroundColor = '#f1f5f9';
+        }
+
+        // Cooling Fan status
+        const coolOn = alerts["Cooling fan"] == "ON" || alerts["Cooling fan"] == "1";
+        document.getElementById('lblCooling').innerText = coolOn ? "RUNNING" : "STANDBY";
+        document.getElementById('iconCooling').className = coolOn ? "bi bi-snow fs-2 active-fan" : "bi bi-snow fs-2 text-muted";
+
+        // Exhaust Fan status
+        const exOn = alerts.ExFan == "ON" || alerts.ExFan == "1";
+        document.getElementById('lblExFan').innerText = exOn ? "EXTRACTING" : "STANDBY";
+        document.getElementById('iconExFan').className = exOn ? "bi bi-fan fs-2 active-fan" : "bi bi-fan fs-2 text-muted";
+
+        // Sprinkler status
+        const sprOn = alerts.sprinkler == "ON" || alerts.sprinkler == "1";
+        document.getElementById('lblSprinkler').innerText = sprOn ? "WATER FLOWING" : "INACTIVE";
+        document.getElementById('iconSprinkler').className = sprOn ? "bi bi-droplet-fill fs-2 text-primary" : "bi bi-droplet fs-2 text-muted";
+    });
 </script>
 </body>
 </html>
