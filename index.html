@@ -10,68 +10,66 @@
 
     <style>
         :root { --bg-body: #f0f4f8; --bg-card: #ffffff; --accent: #0284c7; }
-        body { background-color: var(--bg-body); font-family: 'Segoe UI', sans-serif; color: #1e293b; }
+        body { background-color: var(--bg-body); font-family: 'Segoe UI', sans-serif; color: #1e293b; transition: background-color 0.5s ease; }
         .card { border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         
-        /* Alert Styling */
-        .status-indicator { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 8px; }
-        .bg-active { background-color: #ef4444; box-shadow: 0 0 8px #ef4444; }
-        .bg-inactive { background-color: #10b981; }
+        /* Status Colors */
+        .badge-active { background-color: #ef4444 !important; color: white; box-shadow: 0 0 8px rgba(239, 68, 68, 0.5); }
+        .badge-inactive { background-color: #10b981 !important; color: white; }
         
         @keyframes blink { 50% { opacity: 0.5; } }
         .alert-blinking { animation: blink 1s linear infinite; }
         
-        .log-container { background: #1e293b; color: #38bdf8; font-family: monospace; padding: 15px; border-radius: 8px; height: 150px; overflow-y: auto; font-size: 0.85rem; }
-        
-        .badge-on { background-color: #ef4444 !important; color: white; }
-        .badge-off { background-color: #10b981 !important; color: white; }
+        .log-container { background: #1e293b; color: #38bdf8; font-family: monospace; padding: 15px; border-radius: 8px; height: 165px; overflow-y: auto; font-size: 0.85rem; border: 1px solid #334155; }
+        .log-entry { margin-bottom: 4px; border-left: 2px solid #38bdf8; padding-left: 8px; }
+        .log-error { color: #f87171; border-left-color: #f87171; }
     </style>
 </head>
 <body>
 
 <div class="container py-4">
-    <div class="row mb-4">
+    <div class="row mb-4 align-items-center">
         <div class="col-md-8">
             <h2 class="fw-bold"><i class="bi bi-cpu-fill text-primary"></i> Device-1 <span class="text-muted fw-light">Dashboard</span></h2>
         </div>
         <div class="col-md-4 text-end">
-            <div id="connectionStatus" class="badge bg-success p-2">DATABASE CONNECTED</div>
+            <div id="connectionStatus" class="badge bg-success p-2"><i class="bi bi-cloud-check-fill me-1"></i> LIVE FROM FIREBASE</div>
         </div>
     </div>
 
     <div class="row g-3">
         <div class="col-md-3">
-            <div class="card p-3 text-center">
+            <div class="card p-3 text-center h-100">
                 <small class="text-uppercase text-muted fw-bold">Temperature</small>
-                <h2 class="mt-2 fw-bold"><span id="valTemp">--</span>°C</h2>
+                <h2 class="mt-2 fw-bold text-primary"><span id="valTemp">--</span>°C</h2>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card p-3 text-center">
+            <div class="card p-3 text-center h-100">
                 <small class="text-uppercase text-muted fw-bold">Humidity</small>
-                <h2 class="mt-2 fw-bold"><span id="valHum">--</span>%</h2>
+                <h2 class="mt-2 fw-bold text-info"><span id="valHum">--</span>%</h2>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card p-3 text-center">
+            <div class="card p-3 text-center h-100">
                 <small class="text-uppercase text-muted fw-bold">MQ-135 (Gas)</small>
-                <h2 class="mt-2 fw-bold"><span id="valGas">--</span></h2>
+                <h2 class="mt-2 fw-bold text-success"><span id="valGas">--</span></h2>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card p-3 text-center">
+            <div class="card p-3 text-center h-100">
                 <small class="text-uppercase text-muted fw-bold">MQ-2 (Smoke)</small>
-                <h2 class="mt-2 fw-bold"><span id="valSmoke">--</span></h2>
+                <h2 class="mt-2 fw-bold text-warning"><span id="valSmoke">--</span></h2>
             </div>
         </div>
 
         <div class="col-md-6">
             <div class="card h-100">
-                <div class="card-header bg-white fw-bold">HARDWARE ALERT STATUS</div>
+                <div class="card-header bg-white fw-bold py-3"><i class="bi bi-gear-wide-connected me-2"></i>ACTUATOR STATUS</div>
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span><i class="bi bi-fan me-2"></i>Cooling Fan</span>
+                            <span><i class="bi bi-snow me-2"></i>Cooling Fan</span>
                             <span id="statCooling" class="badge bg-secondary">OFF</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -79,12 +77,12 @@
                             <span id="statExFan" class="badge bg-secondary">OFF</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span><i class="bi bi-droplet me-2"></i>Sprinkler</span>
+                            <span><i class="bi bi-droplet me-2"></i>Sprinkler System</span>
                             <span id="statSprinkler" class="badge bg-secondary">OFF</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span><i class="bi bi-exclamation-triangle me-2"></i>Emergency State</span>
-                            <span id="statIsAlert" class="badge bg-secondary">SAFE</span>
+                            <span><i class="bi bi-shield-exclamation me-2"></i>Global Alert (IsAlert)</span>
+                            <span id="statIsAlert" class="badge bg-secondary">SECURE</span>
                         </li>
                     </ul>
                 </div>
@@ -93,13 +91,28 @@
 
         <div class="col-md-6">
             <div class="card h-100">
-                <div class="card-header bg-white fw-bold">SYSTEM EVENT LOG</div>
+                <div class="card-header bg-white fw-bold py-3"><i class="bi bi-terminal me-2"></i>SYSTEM EVENT LOG</div>
                 <div class="card-body">
                     <div id="sysLog" class="log-container">
-                        > Initializing Secure WebSocket...<br>
-                        > Handshake with asia-southeast1 successful.<br>
-                        > Awaiting Device-1 data...
+                        <div class="log-entry">Initializing connection to asia-southeast1...</div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-person-walking me-2"></i>PIR Motion:</span>
+                    <strong id="statPIR" class="text-muted">WAITING...</strong>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card p-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-reception-4 me-2"></i>Vibration Sensor:</span>
+                    <strong id="statVibration" class="text-muted">WAITING...</strong>
                 </div>
             </div>
         </div>
@@ -123,65 +136,65 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    function addLog(message) {
+    // Logging helper
+    function logMessage(msg, isError = false) {
         const log = document.getElementById('sysLog');
         const time = new Date().toLocaleTimeString();
-        log.innerHTML += `<br>> [${time}] ${message}`;
+        const div = document.createElement('div');
+        div.className = isError ? 'log-entry log-error' : 'log-entry';
+        div.innerHTML = `[${time}] ${msg}`;
+        log.appendChild(div);
         log.scrollTop = log.scrollHeight;
     }
 
-    // --- FETCH SENSOR STATUS ---
-    const statusRef = ref(db, 'Device-1/Status');
-    onValue(statusRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-            document.getElementById('valTemp').innerText = data.Temp || "0";
-            document.getElementById('valHum').innerText = data.Hum || "0";
-            document.getElementById('valGas').innerText = data["MQ-135"] || "0";
-            document.getElementById('valSmoke').innerText = data["MQ-2"] || "0";
-        }
-    });
-
-    // --- FETCH ALERT STATUSES ---
-    const alertRef = ref(db, 'Device-1/Alert');
-    onValue(alertRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-            // Cooling Fan
-            updateHardwareUI('statCooling', data["Cooling fan"]);
-            
-            // Exhaust Fan
-            updateHardwareUI('statExFan', data.ExFan);
-            
-            // Sprinkler
-            updateHardwareUI('statSprinkler', data.sprinkler);
-            
-            // Global Alert State
-            const isAlert = data.IsAlert === true || data.IsAlert === "true";
-            const alertBadge = document.getElementById('statIsAlert');
-            if (isAlert) {
-                alertBadge.innerText = "HAZARD DETECTED";
-                alertBadge.className = "badge badge-on alert-blinking";
-                addLog("CRITICAL: Global Emergency State Active!");
-            } else {
-                alertBadge.innerText = "SYSTEM SECURE";
-                alertBadge.className = "badge badge-off";
-            }
-        }
-    });
-
-    function updateHardwareUI(elementId, value) {
-        const el = document.getElementById(elementId);
-        const isActive = value === "ON" || value === "1" || value === 1;
-        
-        if (isActive) {
-            el.innerText = "ON";
-            el.className = "badge badge-on";
-        } else {
-            el.innerText = "OFF";
-            el.className = "badge badge-off";
-        }
+    // Helper to update Toggle Badges (ON/OFF)
+    function updateActuator(id, value, labelOn = "ON", labelOff = "OFF") {
+        const el = document.getElementById(id);
+        const isActive = value === "ON" || value === "1" || value === 1 || value === true || value === "true";
+        el.innerText = isActive ? labelOn : labelOff;
+        el.className = isActive ? "badge badge-active" : "badge badge-inactive";
+        return isActive;
     }
+
+    // 1. Listen to Device-1/Status (Sensors)
+    onValue(ref(db, 'Device-1/Status'), (snapshot) => {
+        const data = snapshot.val();
+        if (!data) return;
+
+        document.getElementById('valTemp').innerText = data.Temp || "0";
+        document.getElementById('valHum').innerText = data.Hum || "0";
+        document.getElementById('valGas').innerText = data["MQ-135"] || "0";
+        document.getElementById('valSmoke').innerText = data["MQ-2"] || "0";
+        
+        // Update Motion/Vibration text
+        document.getElementById('statPIR').innerText = (data.PIR == "1") ? "MOVEMENT DETECTED" : "CLEAR";
+        document.getElementById('statPIR').className = (data.PIR == "1") ? "text-danger fw-bold" : "text-success";
+        
+        document.getElementById('statVibration').innerText = (data.Vibration == "1") ? "VIBRATING" : "STABLE";
+        document.getElementById('statVibration').className = (data.Vibration == "1") ? "text-danger fw-bold" : "text-success";
+    });
+
+    // 2. Listen to Device-1/Alert (System Controls)
+    onValue(ref(db, 'Device-1/Alert'), (snapshot) => {
+        const data = snapshot.val();
+        if (!data) return;
+
+        updateActuator('statCooling', data["Cooling fan"]);
+        updateActuator('statExFan', data.ExFan);
+        updateActuator('statSprinkler', data.sprinkler);
+        
+        const isHazard = updateActuator('statIsAlert', data.IsAlert, "HAZARD DETECTED", "SECURE");
+
+        if (isHazard) {
+            document.getElementById('statIsAlert').classList.add('alert-blinking');
+            document.body.style.backgroundColor = "#fee2e2";
+            logMessage("ALERT: Critical environment detected!", true);
+        } else {
+            document.body.style.backgroundColor = "#f0f4f8";
+        }
+    });
+
+    logMessage("System Ready. Listening for updates...");
 </script>
 
 </body>
