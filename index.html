@@ -16,13 +16,12 @@
             --text-muted: #64748b;
             --accent-border: #bae6fd;
             --fan-color: #cbd5e1;
-            --list-hover: #f8fafc;
         }
 
         body { 
             background-color: var(--bg-body); 
             color: var(--text-main);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            font-family: 'Segoe UI', sans-serif; 
             -webkit-font-smoothing: antialiased;
         }
 
@@ -31,12 +30,6 @@
             border: 1px solid var(--accent-border); 
             border-radius: 16px; 
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); 
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.15);
         }
 
         .badge.bg-light { 
@@ -47,32 +40,18 @@
         
         .progress { background-color: #e2e8f0; overflow: hidden; }
 
-        /* --- 3D BUTTON --- */
         .btn-3d {
-            position: relative;
             background: linear-gradient(to bottom, #ef4444, #dc2626);
             color: white;
             font-weight: bold;
             border: none;
             border-radius: 12px;
-            box-shadow: 0 6px 0 #991b1b, 0 12px 12px rgba(239, 68, 68, 0.3);
+            box-shadow: 0 6px 0 #991b1b;
             transition: all 0.1s ease;
-            cursor: pointer;
         }
 
-        .btn-3d:active, .btn-3d.pressed {
-            box-shadow: 0 2px 0 #991b1b, 0 4px 4px rgba(0,0,0,0.4); 
-            transform: translateY(4px); 
-        }
-
-        .btn-3d:disabled {
-            background: #f1f5f9;
-            color: #94a3b8;
-            border: 1px solid #e2e8f0;
-            box-shadow: none;
-            transform: translateY(4px); 
-            cursor: not-allowed;
-        }
+        .btn-3d:active { transform: translateY(4px); box-shadow: 0 2px 0 #991b1b; }
+        .btn-3d:disabled { background: #f1f5f9; color: #94a3b8; box-shadow: none; transform: translateY(4px); }
 
         .system-item {
             display: flex;
@@ -81,16 +60,14 @@
             padding: 1rem 0.5rem;
             border-bottom: 1px solid var(--accent-border);
         }
-        .system-item:last-child { border-bottom: none; }
 
-        /* --- ANIMATIONS --- */
         @keyframes spin { 100% { transform: rotate(360deg); } }
         .spin-active { animation: spin 0.8s linear infinite; }
 
         @keyframes pulse-red {
-            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); border-color: rgba(239, 68, 68, 0.8); }
+            0% { border-color: rgba(239, 68, 68, 0.8); }
             70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); border-color: rgba(239, 68, 68, 0.8); }
+            100% { border-color: rgba(239, 68, 68, 0.8); }
         }
         .pulse-active { animation: pulse-red 2s infinite; }
     </style>
@@ -98,12 +75,12 @@
 <body>
 
 <div class="container py-5">
-    <div class="row mb-5">
-        <div class="col-12 text-center">
+    <div class="row mb-5 text-center">
+        <div class="col-12">
             <h1 class="fw-bold display-5" style="color: #0284c7;">
                 <i class="bi bi-clouds-fill me-2"></i>Lab Monitor <span style="font-weight: 300;">Sky</span>
             </h1>
-            <p class="text-muted">Environment & Countermeasure Controller</p>
+            <p class="text-muted">Device-1 Status Panel</p>
         </div>
     </div>
 
@@ -131,7 +108,7 @@
                         <div class="text-center mt-2">
                             <h2 class="display-4 mb-0 fw-bold"><span id="valHum">--</span><small class="fs-4 text-muted"> %</small></h2>
                             <div class="progress mt-4 mb-2" style="height: 6px; border-radius: 10px;">
-                                <div id="barHum" class="progress-bar bg-info" role="progressbar" style="width: 0%"></div>
+                                <div id="barHum" class="progress-bar bg-info" style="width: 0%"></div>
                             </div>
                         </div>
                     </div>
@@ -170,7 +147,7 @@
                         <div class="text-center mt-2">
                             <h2 class="display-4 mb-0 fw-bold"><span id="valSmoke">--</span><small class="fs-4 text-muted"> PPM</small></h2>
                             <div class="progress mt-4 mb-2" style="height: 8px; border-radius: 10px;">
-                                <div id="barSmoke" class="progress-bar bg-warning" role="progressbar" style="width: 0%"></div>
+                                <div id="barSmoke" class="progress-bar bg-warning" style="width: 0%"></div>
                             </div>
                         </div>
                     </div>
@@ -180,12 +157,12 @@
                     <div class="card h-100 p-4">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h6 class="text-muted fw-bold text-uppercase"><i class="bi bi-cloud-haze2 me-2"></i>Air Quality</h6>
-                            <span id="badgeAir" class="badge bg-success">MQ-135</span>
+                            <span class="badge bg-success">MQ-135</span>
                         </div>
                         <div class="text-center mt-2">
                             <h2 class="display-4 mb-0 fw-bold"><span id="valGas">--</span><small class="fs-4 text-muted"> PPM</small></h2>
                             <div class="progress mt-4 mb-2" style="height: 8px; border-radius: 10px;">
-                                <div id="barGas" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+                                <div id="barGas" class="progress-bar bg-success" style="width: 0%"></div>
                             </div>
                         </div>
                     </div>
@@ -195,54 +172,42 @@
 
         <div class="col-lg-4">
             <div id="cardAlert" class="card h-100"> 
-                <div id="headerAlert" class="card-header bg-transparent text-muted text-center fw-bold py-3 border-bottom">
-                    <i class="bi bi-shield-check me-2"></i>SYSTEM LOGIC
+                <div class="card-header bg-transparent text-muted text-center fw-bold py-3 border-bottom">
+                    SYSTEM LOGIC
                 </div>
-
                 <div class="card-body p-4 d-flex flex-column">
-                    <div id="mainStatusBadge" class="badge bg-success w-100 p-3 mb-4 fs-5">
-                        SYSTEM SECURE
+                    <div id="mainStatusBadge" class="badge bg-success w-100 p-3 mb-4 fs-5">SYSTEM SECURE</div>
+
+                    <div class="system-item">
+                        <div class="d-flex align-items-center">
+                            <i id="fanIcon" class="bi bi-fan fs-2 me-3" style="color: var(--fan-color);"></i>
+                            <div><h6 class="mb-0 fw-bold">Exhaust Fan</h6></div>
+                        </div>
+                        <div id="fanText" class="badge bg-light text-muted border">OFF</div>
                     </div>
 
-                    <div class="d-flex flex-column mb-4">
-                        <div class="system-item">
-                            <div class="d-flex align-items-center">
-                                <i id="fanIcon" class="bi bi-fan fs-2 me-3" style="color: var(--fan-color);"></i>
-                                <div><h6 class="mb-0 fw-bold">Exhaust Fan</h6><small class="text-muted">Gas Removal</small></div>
-                            </div>
-                            <div id="fanText" class="badge bg-light text-muted border">OFF</div>
+                    <div class="system-item">
+                        <div class="d-flex align-items-center">
+                            <i id="coolFanIcon" class="bi bi-snow fs-2 me-3" style="color: var(--fan-color);"></i>
+                            <div><h6 class="mb-0 fw-bold">Cooling Fan</h6></div>
                         </div>
+                        <div id="coolFanText" class="badge bg-light text-muted border">OFF</div>
+                    </div>
 
-                        <div class="system-item">
-                            <div class="d-flex align-items-center">
-                                <i id="coolFanIcon" class="bi bi-snow fs-2 me-3" style="color: var(--fan-color);"></i>
-                                <div><h6 class="mb-0 fw-bold">Cooling Fan</h6><small class="text-muted">Temperature</small></div>
-                            </div>
-                            <div id="coolFanText" class="badge bg-light text-muted border">OFF</div>
+                    <div class="system-item">
+                        <div class="d-flex align-items-center">
+                            <i id="sprinklerIcon" class="bi bi-moisture fs-2 me-3" style="color: var(--fan-color);"></i>
+                            <div><h6 class="mb-0 fw-bold">Sprinkler</h6></div>
                         </div>
-
-                        <div class="system-item">
-                            <div class="d-flex align-items-center">
-                                <i id="sprinklerIcon" class="bi bi-moisture fs-2 me-3" style="color: var(--fan-color);"></i>
-                                <div><h6 class="mb-0 fw-bold">Sprinkler</h6><small class="text-muted">Fire Safety</small></div>
-                            </div>
-                            <div id="sprinklerText" class="badge bg-light text-muted border">OFF</div>
-                        </div>
+                        <div id="sprinklerText" class="badge bg-light text-muted border">OFF</div>
                     </div>
 
                     <div class="mt-auto">
-                        <button id="btnSilence" class="btn-3d w-100 py-4 fs-5" onclick="silenceAlarm()" disabled>
-                            <i class="bi bi-bell-slash-fill me-2"></i>SILENCE
-                        </button>
+                        <button id="btnSilence" class="btn-3d w-100 py-4 fs-5" onclick="silenceAlarm()" disabled>SILENCE</button>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="text-center mt-5 text-muted small">
-        <span class="me-3"><i class="bi bi-cpu"></i> Connected to ESP32</span>
-        <span>Last Sync: <span id="lastUpdated">...</span></span>
     </div>
 </div>
 
@@ -250,7 +215,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
     import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
-    // Your Provided Config
     const firebaseConfig = {
         apiKey: "AIzaSyDO3vqJGU-DfvdbNxN9wYj_7yzVQMtOAcY",
         authDomain: "environment-monitoring-s-1885c.firebaseapp.com",
@@ -258,118 +222,75 @@
         projectId: "environment-monitoring-s-1885c",
         storageBucket: "environment-monitoring-s-1885c.firebasestorage.app",
         messagingSenderId: "473456562150",
-        appId: "1:473456562150:web:7705fad07eb2091e975027",
-        measurementId: "G-E7T3909M47"
+        appId: "1:473456562150:web:7705fad07eb2091e975027"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const dataRef = ref(db, 'lab_monitor'); 
+    // Path adjusted to your structure: Device-1/Status
+    const dataRef = ref(db, 'Device-1/Status'); 
 
     onValue(dataRef, (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
 
-        // 1. UPDATING SENSOR VALUES
-        document.getElementById('Temp').innerText = data.temp !== undefined ? data.temp.toFixed(1) : "--";
-        document.getElementById('Hum').innerText = data.humidity !== undefined ? data.humidity.toFixed(0) : "--";
-        document.getElementById('MQ-2').innerText = data.gas_ppm || "--";
-        document.getElementById('MQ-135').innerText = data.smoke_ppm || "--";
-        document.getElementById('lastUpdated').innerText = new Date().toLocaleTimeString();
+        // Map Firebase keys to UI
+        const temp = parseFloat(data.Temp) || 0;
+        const hum = parseFloat(data.Hum) || 0;
+        const gas = parseInt(data["MQ-135"]) || 0;
+        const smoke = parseInt(data["MQ-2"]) || 0;
+        const pir = data.PIR;
+        const vib = data.Vibration;
 
-        // Progress Bars
-        document.getElementById('barHum').style.width = (data.humidity || 0) + "%";
-        document.getElementById('barGas').style.width = Math.min(((data.gas_ppm || 0) / 1000) * 100, 100) + "%";
-        document.getElementById('barSmoke').style.width = Math.min(((data.smoke_ppm || 0) / 1000) * 100, 100) + "%";
+        document.getElementById('valTemp').innerText = temp || "--";
+        document.getElementById('valHum').innerText = hum || "--";
+        document.getElementById('valGas').innerText = gas || "--";
+        document.getElementById('valSmoke').innerText = smoke || "--";
 
-        // Vibration & Motion
-        const valVib = document.getElementById('valVib');
-        if (data.vibration == 1) {
-            valVib.innerText = "DETECTED!";
-            valVib.className = "display-6 mb-0 fw-bold text-danger";
-        } else {
-            valVib.innerText = "CLEAR";
-            valVib.className = "display-6 mb-0 fw-bold text-muted";
-        }
+        document.getElementById('barHum').style.width = hum + "%";
+        document.getElementById('barGas').style.width = Math.min((gas/1000)*100, 100) + "%";
+        document.getElementById('barSmoke').style.width = Math.min((smoke/1000)*100, 100) + "%";
 
-        const valMotion = document.getElementById('valMotion');
-        if (data.motion == 1) {
-            valMotion.innerText = "ACTIVITY";
-            valMotion.className = "display-6 mb-0 fw-bold text-warning";
-        } else {
-            valMotion.innerText = "CLEAR";
-            valMotion.className = "display-6 mb-0 fw-bold text-muted";
-        }
+        // Vibration/Motion UI logic
+        const vibEl = document.getElementById('valVib');
+        vibEl.innerText = (vib == "1" || vib == 1) ? "DETECTED!" : "CLEAR";
+        vibEl.className = (vib == "1") ? "display-6 mb-0 fw-bold text-danger" : "display-6 mb-0 fw-bold text-muted";
 
-        // 2. SYSTEM LOGIC CONTROLS
-        const fanIcon = document.getElementById('fanIcon');
-        const fanText = document.getElementById('fanText');
+        const motEl = document.getElementById('valMotion');
+        motEl.innerText = (pir == "1" || pir == 1) ? "ACTIVITY" : "CLEAR";
+        motEl.className = (pir == "1") ? "display-6 mb-0 fw-bold text-warning" : "display-6 mb-0 fw-bold text-muted";
+
+        // Logic Controls
         const coolFanIcon = document.getElementById('coolFanIcon');
-        const coolFanText = document.getElementById('coolFanText');
-        const sprinklerIcon = document.getElementById('sprinklerIcon');
-        const sprinklerText = document.getElementById('sprinklerText');
-        
-        // Cooling Fan Logic
-        if (data.temp > 30.0) {
+        if (temp > 30) {
             coolFanIcon.className = "bi bi-snow fs-2 text-primary spin-active";
-            coolFanText.innerText = "ON";
-            coolFanText.className = "badge bg-primary";
+            document.getElementById('coolFanText').innerText = "ON";
+            document.getElementById('coolFanText').className = "badge bg-primary";
         } else {
             coolFanIcon.className = "bi bi-snow fs-2";
-            coolFanIcon.style.color = "var(--fan-color)";
-            coolFanText.innerText = "OFF";
-            coolFanText.className = "badge bg-light text-muted border";
+            document.getElementById('coolFanText').innerText = "OFF";
+            document.getElementById('coolFanText').className = "badge bg-light text-muted border";
         }
 
-        // Hazard Logic
-        const isHazard = data.countermeasure_status === true || (data.gas_ppm > 400) || (data.smoke_ppm > 400);
-
+        const isHazard = (gas > 400 || smoke > 400);
         if (isHazard) {
-            document.getElementById('cardAlert').className = "card h-100 shadow-lg pulse-active";
-            document.getElementById('headerAlert').className = "card-header bg-danger text-white text-center fw-bold py-3";
+            document.getElementById('cardAlert').classList.add('pulse-active');
             document.getElementById('mainStatusBadge').className = "badge bg-danger w-100 p-3 mb-4 fs-5";
-            document.getElementById('mainStatusBadge').innerText = "HAZARD DETECTED";
-
-            fanIcon.className = "bi bi-fan text-danger spin-active fs-2";
-            fanText.innerText = "ON";
-            fanText.className = "badge bg-danger";
-
-            if(data.temp > 50 || data.smoke_ppm > 800) {
-                sprinklerIcon.className = "bi bi-droplet-fill text-primary fs-2";
-                sprinklerText.innerText = "ON";
-                sprinklerText.className = "badge bg-primary";
-            }
-
+            document.getElementById('mainStatusBadge').innerText = "HAZARD";
+            document.getElementById('fanIcon').className = "bi bi-fan text-danger spin-active fs-2";
             document.getElementById('btnSilence').disabled = false;
         } else {
-            document.getElementById('cardAlert').className = "card h-100";
-            document.getElementById('headerAlert').className = "card-header bg-transparent text-muted text-center fw-bold py-3 border-bottom";
+            document.getElementById('cardAlert').classList.remove('pulse-active');
             document.getElementById('mainStatusBadge').className = "badge bg-success w-100 p-3 mb-4 fs-5";
-            document.getElementById('mainStatusBadge').innerText = "SYSTEM SECURE";
-
-            fanIcon.className = "bi bi-fan fs-2";
-            fanIcon.style.color = "var(--fan-color)";
-            fanText.innerText = "OFF";
-            fanText.className = "badge bg-light text-muted border";
-
-            sprinklerIcon.className = "bi bi-moisture fs-2";
-            sprinklerIcon.style.color = "var(--fan-color)";
-            sprinklerText.innerText = "OFF";
-            sprinklerText.className = "badge bg-light text-muted border";
-
+            document.getElementById('mainStatusBadge').innerText = "SECURE";
+            document.getElementById('fanIcon').className = "bi bi-fan fs-2";
             document.getElementById('btnSilence').disabled = true;
         }
     });
 
     window.silenceAlarm = function() {
-        const btn = document.getElementById('btnSilence');
-        btn.innerHTML = "COMMAND SENT";
-        update(dataRef, {
-            "manual_silence": true,
-            "countermeasure_status": false 
-        });
+        update(dataRef, { "ManualSilence": true });
     }
 </script>
 </body>
 </html>
-
