@@ -271,10 +271,10 @@
         if (!data) return;
 
         // 1. UPDATING SENSOR VALUES
-        document.getElementById('valTemp').innerText = data.temp !== undefined ? data.temp.toFixed(1) : "--";
-        document.getElementById('valHum').innerText = data.humidity !== undefined ? data.humidity.toFixed(0) : "--";
-        document.getElementById('valGas').innerText = data.gas_ppm || "--";
-        document.getElementById('valSmoke').innerText = data.smoke_ppm || "--";
+        document.getElementById('Temp').innerText = data.temp !== undefined ? data.temp.toFixed(1) : "--";
+        document.getElementById('Hum').innerText = data.humidity !== undefined ? data.humidity.toFixed(0) : "--";
+        document.getElementById('MQ-2').innerText = data.gas_ppm || "--";
+        document.getElementById('MQ-135').innerText = data.smoke_ppm || "--";
         document.getElementById('lastUpdated').innerText = new Date().toLocaleTimeString();
 
         // Progress Bars
@@ -372,3 +372,4 @@
 </script>
 </body>
 </html>
+
