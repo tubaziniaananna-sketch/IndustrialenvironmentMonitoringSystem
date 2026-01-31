@@ -40,6 +40,7 @@
         
         .progress { background-color: #e2e8f0; overflow: hidden; }
 
+        /* 3D Button Style */
         .btn-3d {
             background: linear-gradient(to bottom, #ef4444, #dc2626);
             color: white;
@@ -51,7 +52,7 @@
         }
 
         .btn-3d:active { transform: translateY(4px); box-shadow: 0 2px 0 #991b1b; }
-        .btn-3d:disabled { background: #f1f5f9; color: #94a3b8; box-shadow: none; transform: translateY(4px); }
+        .btn-3d:disabled { background: #f1f5f9; color: #94a3b8; box-shadow: none; transform: translateY(4px); cursor: not-allowed; }
 
         .system-item {
             display: flex;
@@ -61,6 +62,7 @@
             border-bottom: 1px solid var(--accent-border);
         }
 
+        /* Animations */
         @keyframes spin { 100% { transform: rotate(360deg); } }
         .spin-active { animation: spin 0.8s linear infinite; }
 
@@ -71,7 +73,7 @@
         }
         .pulse-active { animation: pulse-red 2s infinite; }
         
-        /* Alert background state */
+        /* Emergency State */
         body.hazard-bg { background-color: #fee2e2; }
     </style>
 </head>
@@ -90,6 +92,7 @@
     <div class="row g-4">
         <div class="col-lg-8">
             <div class="row g-4">
+                
                 <div class="col-md-6">
                     <div class="card h-100 p-4">
                         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -176,7 +179,7 @@
         <div class="col-lg-4">
             <div id="cardAlert" class="card h-100"> 
                 <div class="card-header bg-transparent text-muted text-center fw-bold py-3 border-bottom">
-                    SYSTEM LOGIC
+                    SYSTEM LOGIC CONTROLLER
                 </div>
                 <div class="card-body p-4 d-flex flex-column">
                     <div id="mainStatusBadge" class="badge bg-success w-100 p-3 mb-4 fs-5">SYSTEM SECURE</div>
@@ -184,7 +187,10 @@
                     <div class="system-item">
                         <div class="d-flex align-items-center">
                             <i id="fanIcon" class="bi bi-fan fs-2 me-3" style="color: var(--fan-color);"></i>
-                            <div><h6 class="mb-0 fw-bold">Exhaust Fan</h6></div>
+                            <div>
+                                <h6 class="mb-0 fw-bold">Exhaust Fan (D27)</h6>
+                                <small class="text-muted" style="font-size: 0.75rem;">Triggers on Gas/Smoke</small>
+                            </div>
                         </div>
                         <div id="fanText" class="badge bg-light text-muted border">OFF</div>
                     </div>
@@ -192,21 +198,29 @@
                     <div class="system-item">
                         <div class="d-flex align-items-center">
                             <i id="coolFanIcon" class="bi bi-snow fs-2 me-3" style="color: var(--fan-color);"></i>
-                            <div><h6 class="mb-0 fw-bold">Cooling Fan</h6></div>
+                            <div>
+                                <h6 class="mb-0 fw-bold">Cooling Fan (D14)</h6>
+                                <small class="text-muted" style="font-size: 0.75rem;">Triggers > 28°C</small>
+                            </div>
                         </div>
                         <div id="coolFanText" class="badge bg-light text-muted border">OFF</div>
                     </div>
 
                     <div class="system-item">
                         <div class="d-flex align-items-center">
-                            <i id="sprinklerIcon" class="bi bi-moisture fs-2 me-3" style="color: var(--fan-color);"></i>
-                            <div><h6 class="mb-0 fw-bold">Sprinkler</h6></div>
+                            <i id="sprinklerIcon" class="bi bi-droplet-half fs-2 me-3" style="color: var(--fan-color);"></i>
+                            <div>
+                                <h6 class="mb-0 fw-bold">Sprinkler (D26)</h6>
+                                <small class="text-muted" style="font-size: 0.75rem;">Triggers > 45°C + Fire</small>
+                            </div>
                         </div>
                         <div id="sprinklerText" class="badge bg-light text-muted border">OFF</div>
                     </div>
 
-                    <div class="mt-auto">
-                        <button id="btnSilence" class="btn-3d w-100 py-4 fs-5" onclick="silenceAlarm()" disabled>SILENCE</button>
+                    <div class="mt-auto pt-4">
+                        <button id="btnSilence" class="btn-3d w-100 py-4 fs-5" onclick="silenceAlarm()" disabled>
+                            <i class="bi bi-bell-slash-fill me-2"></i>SILENCE ALARM
+                        </button>
                     </div>
                 </div>
             </div>
@@ -218,94 +232,133 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
     import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
+    // --- PASTE YOUR FIREBASE CONFIG HERE ---
     const firebaseConfig = {
-        apiKey: "AIzaSyDO3vqJGU-DfvdbNxN9wYj_7yzVQMtOAcY",
-        authDomain: "environment-monitoring-s-1885c.firebaseapp.com",
-        databaseURL: "https://environment-monitoring-s-1885c-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "environment-monitoring-s-1885c",
-        storageBucket: "environment-monitoring-s-1885c.firebasestorage.app",
-        messagingSenderId: "473456562150",
-        appId: "1:473456562150:web:7705fad07eb2091e975027"
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_PROJECT.firebaseapp.com",
+        databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT.appspot.com",
+        messagingSenderId: "YOUR_SENDER_ID",
+        appId: "YOUR_APP_ID"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // 1. LISTEN TO SENSORS (Device-1/Status)
+    // 1. SENSOR LISTENER
     const statusRef = ref(db, 'Device-1/Status');
     onValue(statusRef, (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
 
-        const temp = parseFloat(data.Temp) || 0;
-        const hum = parseFloat(data.Hum) || 0;
-        const gas = parseInt(data["MQ-135"]) || 0;
-        const smoke = parseInt(data["MQ-2"]) || 0;
-        const pir = data.PIR;
-        const vib = data.Vibration;
+        // Numeric Values
+        const temp = parseFloat(data.Temp).toFixed(1);
+        const hum = parseFloat(data.Hum).toFixed(1);
+        const gas = parseInt(data["MQ-135"]);
+        const smoke = parseInt(data["MQ-2"]);
+        
+        // Digital Values (Handle "1" string or 1 number)
+        const pir = (data.PIR == 1);
+        const vib = (data.Vibration == 1);
 
-        document.getElementById('valTemp').innerText = temp || "--";
-        document.getElementById('valHum').innerText = hum || "--";
-        document.getElementById('valGas').innerText = gas || "--";
-        document.getElementById('valSmoke').innerText = smoke || "--";
+        // Update UI Text
+        document.getElementById('valTemp').innerText = temp;
+        document.getElementById('valHum').innerText = hum;
+        document.getElementById('valGas').innerText = gas;
+        document.getElementById('valSmoke').innerText = smoke;
 
+        // Update Progress Bars (Scaled to 1000ppm max for visuals)
         document.getElementById('barHum').style.width = hum + "%";
-        document.getElementById('barGas').style.width = Math.min((gas/1000)*100, 100) + "%";
-        document.getElementById('barSmoke').style.width = Math.min((smoke/1000)*100, 100) + "%";
+        document.getElementById('barGas').style.width = Math.min((gas/1200)*100, 100) + "%";
+        document.getElementById('barSmoke').style.width = Math.min((smoke/1200)*100, 100) + "%";
 
+        // Update Vibration State
         const vibEl = document.getElementById('valVib');
-        vibEl.innerText = (vib == "1" || vib == 1) ? "DETECTED!" : "CLEAR";
-        vibEl.className = (vib == "1") ? "display-6 mb-0 fw-bold text-danger" : "display-6 mb-0 fw-bold text-muted";
+        if(vib) {
+            vibEl.innerText = "DETECTED!";
+            vibEl.className = "display-6 mb-0 fw-bold text-danger pulse-active";
+        } else {
+            vibEl.innerText = "CLEAR";
+            vibEl.className = "display-6 mb-0 fw-bold text-muted";
+        }
 
+        // Update Motion State
         const motEl = document.getElementById('valMotion');
-        motEl.innerText = (pir == "1" || pir == 1) ? "ACTIVITY" : "CLEAR";
-        motEl.className = (pir == "1") ? "display-6 mb-0 fw-bold text-warning" : "display-6 mb-0 fw-bold text-muted";
+        if(pir) {
+            motEl.innerText = "ACTIVITY";
+            motEl.className = "display-6 mb-0 fw-bold text-warning";
+        } else {
+            motEl.innerText = "CLEAR";
+            motEl.className = "display-6 mb-0 fw-bold text-muted";
+        }
     });
 
-    // 2. LISTEN TO ALERTS (Device-1/Alert)
+    // 2. ALERT & ACTUATOR LISTENER
     const alertRef = ref(db, 'Device-1/Alert');
     onValue(alertRef, (snapshot) => {
         const alerts = snapshot.val();
         if (!alerts) return;
 
+        // Helper to check ON/OFF regardless of casing or type
+        const checkOn = (val) => (val === "ON" || val === 1 || val === "1" || val === true);
+
         // Exhaust Fan
-        const exFanOn = alerts.ExFan === "ON" || alerts.ExFan === "1" || alerts.ExFan === 1;
-        document.getElementById('fanText').innerText = exFanOn ? "ON" : "OFF";
-        document.getElementById('fanText').className = exFanOn ? "badge bg-danger" : "badge bg-light text-muted border";
-        document.getElementById('fanIcon').className = exFanOn ? "bi bi-fan fs-2 me-3 text-danger spin-active" : "bi bi-fan fs-2 me-3";
+        const exFanOn = checkOn(alerts.ExFan);
+        updateActuatorUI('fanText', 'fanIcon', exFanOn, 'bg-danger', 'text-danger');
 
         // Cooling Fan
-        const coolOn = alerts["Cooling fan"] === "ON" || alerts["Cooling fan"] === "1" || alerts["Cooling fan"] === 1;
-        document.getElementById('coolFanText').innerText = coolOn ? "ON" : "OFF";
-        document.getElementById('coolFanText').className = coolOn ? "badge bg-primary" : "badge bg-light text-muted border";
-        document.getElementById('coolFanIcon').className = coolOn ? "bi bi-snow fs-2 me-3 text-primary spin-active" : "bi bi-snow fs-2 me-3";
+        const coolOn = checkOn(alerts["Cooling fan"]);
+        updateActuatorUI('coolFanText', 'coolFanIcon', coolOn, 'bg-primary', 'text-primary');
 
         // Sprinkler
-        const sprinklerOn = alerts.sprinkler === "ON" || alerts.sprinkler === "1" || alerts.sprinkler === 1;
-        document.getElementById('sprinklerText').innerText = sprinklerOn ? "ON" : "OFF";
-        document.getElementById('sprinklerText').className = sprinklerOn ? "badge bg-info" : "badge bg-light text-muted border";
-        document.getElementById('sprinklerIcon').className = sprinklerOn ? "bi bi-moisture fs-2 me-3 text-info" : "bi bi-moisture fs-2 me-3";
+        const sprinklerOn = checkOn(alerts.sprinkler);
+        updateActuatorUI('sprinklerText', 'sprinklerIcon', sprinklerOn, 'bg-info', 'text-info');
 
-        // IsAlert Master Logic
-        const isHazard = alerts.IsAlert === true || alerts.IsAlert === "true";
+        // Global Alert State
+        const isHazard = (alerts.IsAlert === true || alerts.IsAlert === "true");
+        
         if (isHazard) {
             document.body.classList.add('hazard-bg');
             document.getElementById('cardAlert').classList.add('pulse-active');
             document.getElementById('mainStatusBadge').className = "badge bg-danger w-100 p-3 mb-4 fs-5";
-            document.getElementById('mainStatusBadge').innerText = "HAZARD";
+            document.getElementById('mainStatusBadge').innerText = "HAZARD DETECTED";
             document.getElementById('btnSilence').disabled = false;
         } else {
             document.body.classList.remove('hazard-bg');
             document.getElementById('cardAlert').classList.remove('pulse-active');
             document.getElementById('mainStatusBadge').className = "badge bg-success w-100 p-3 mb-4 fs-5";
-            document.getElementById('mainStatusBadge').innerText = "SECURE";
+            document.getElementById('mainStatusBadge').innerText = "SYSTEM SECURE";
             document.getElementById('btnSilence').disabled = true;
         }
     });
 
-    // Write to DB for silence action
+    // UI Helper Function
+    function updateActuatorUI(textId, iconId, isOn, badgeClass, iconColorClass) {
+        const textEl = document.getElementById(textId);
+        const iconEl = document.getElementById(iconId);
+
+        if (isOn) {
+            textEl.innerText = "ON";
+            textEl.className = `badge ${badgeClass}`;
+            iconEl.classList.add(iconColorClass, "spin-active");
+            iconEl.style.color = ""; // Remove inline style override
+        } else {
+            textEl.innerText = "OFF";
+            textEl.className = "badge bg-light text-muted border";
+            iconEl.classList.remove(iconColorClass, "spin-active");
+            iconEl.style.color = "var(--fan-color)";
+        }
+    }
+
+    // Silence Alarm Function
     window.silenceAlarm = function() {
-        update(ref(db, 'Device-1/Alert'), { "IsAlert": false });
+        // Reset Logic: We clear the global alert and the exhaust fan
+        update(ref(db, 'Device-1/Alert'), { 
+            "IsAlert": false,
+            "ExFan": "OFF",
+            "sprinkler": "OFF"
+        });
     }
 </script>
 </body>
