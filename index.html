@@ -248,34 +248,42 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // 1. LISTEN TO SENSORS
+    // 1. SENSOR LISTENERS
     const statusRef = ref(db, 'Device-1/Status');
     onValue(statusRef, (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
 
-        document.getElementById('valTemp').innerText = data.Temp || "--";
-        document.getElementById('valHum').innerText = data.Hum || "--";
-        document.getElementById('valGas').innerText = data["MQ-135"] || "--";
-        document.getElementById('valSmoke').innerText = data["MQ-2"] || "--";
+        const temp = parseFloat(data.Temp) || 0;
+        const hum = parseFloat(data.Hum) || 0;
+        const gas = parseInt(data["MQ-135"]) || 0;
+        const smoke = parseInt(data["MQ-2"]) || 0;
+        const pir = data.PIR;
+        const vib = data.Vibration;
 
-        document.getElementById('barHum').style.width = data.Hum + "%";
-        document.getElementById('barGas').style.width = Math.min((data["MQ-135"]/1000)*100, 100) + "%";
-        document.getElementById('barSmoke').style.width = Math.min((data["MQ-2"]/1000)*100, 100) + "%";
+        document.getElementById('valTemp').innerText = temp || "--";
+        document.getElementById('valHum').innerText = hum || "--";
+        document.getElementById('valGas').innerText = gas || "--";
+        document.getElementById('valSmoke').innerText = smoke || "--";
+
+        document.getElementById('barHum').style.width = hum + "%";
+        document.getElementById('barGas').style.width = Math.min((gas/1000)*100, 100) + "%";
+        document.getElementById('barSmoke').style.width = Math.min((smoke/1000)*100, 100) + "%";
 
         const vibEl = document.getElementById('valVib');
-        vibEl.innerText = (data.Vibration == "1" || data.Vibration == 1) ? "DETECTED!" : "CLEAR";
-        vibEl.className = (data.Vibration == "1") ? "display-6 mb-0 fw-bold text-danger" : "display-6 mb-0 fw-bold text-muted";
+        vibEl.innerText = (vib == "1" || vib == 1) ? "DETECTED!" : "CLEAR";
+        vibEl.className = (vib == "1") ? "display-6 mb-0 fw-bold text-danger" : "display-6 mb-0 fw-bold text-muted";
 
         const motEl = document.getElementById('valMotion');
-        motEl.innerText = (data.PIR == "1" || data.PIR == 1) ? "ACTIVITY" : "CLEAR";
-        motEl.className = (data.PIR == "1") ? "display-6 mb-0 fw-bold text-warning" : "display-6 mb-0 fw-bold text-muted";
+        motEl.innerText = (pir == "1" || pir == 1) ? "ACTIVITY" : "CLEAR";
+        motEl.className = (pir == "1") ? "display-6 mb-0 fw-bold text-warning" : "display-6 mb-0 fw-bold text-muted";
     });
 
-    // 2. LISTEN TO CONTROLS
+    // 2. CONTROL SYNC
     onValue(ref(db, 'Device-1/Controls'), (snapshot) => {
         const ctrl = snapshot.val();
         if (!ctrl) return;
+
         document.getElementById('swExFan').checked = (ctrl.ExFan === "ON");
         document.getElementById('swCooling').checked = (ctrl.Cooling === "ON");
         document.getElementById('swSprinkler').checked = (ctrl.Sprinkler === "ON");
@@ -286,13 +294,21 @@
         updateIcon('sprinklerIcon', ctrl.Sprinkler === "ON", 'text-info');
     });
 
-    // 3. LISTEN TO ALERTS
+    // 3. ALERT LISTENERS
     onValue(ref(db, 'Device-1/Alert'), (snapshot) => {
         const alerts = snapshot.val();
-        const isTheft = alerts && alerts.Theft === true;
+        if (!alerts) return;
+
+        const isTheft = alerts.Theft === true;
         const banner = document.getElementById('theftBanner');
-        banner.style.display = isTheft ? "block" : "none";
-        isTheft ? document.body.classList.add('hazard-bg') : document.body.classList.remove('hazard-bg');
+        
+        if(isTheft) {
+            banner.style.display = "block";
+            document.body.classList.add('hazard-bg');
+        } else {
+            banner.style.display = "none";
+            document.body.classList.remove('hazard-bg');
+        }
     });
 
     function updateIcon(id, isActive, colorClass) {
@@ -310,16 +326,16 @@
     window.toggleRelay = function(device) {
         const id = 'sw' + device;
         const isChecked = document.getElementById(id).checked;
-        update(ref(db, 'Device-1/Controls'), { [device]: isChecked ? "ON" : "OFF" });
+        const path = 'Device-1/Controls/' + device;
+        update(ref(db), { [path]: isChecked ? "ON" : "OFF" });
     }
 
-    // UPDATED: isSecurityON is back inside 'Controls' and sent as a native Boolean
+    // UPDATED: isSecurityON is now a BOOLEAN type
     window.toggleSecurity = function() {
         const isChecked = document.getElementById('swSecurity').checked;
-        
         update(ref(db, 'Device-1/Controls'), { 
             "SecurityMode": isChecked ? "ARMED" : "DISARMED",
-            "isSecurityON": isChecked // Sending Boolean (true/false)
+            "isSecurityON": isChecked  // boolean: true / false
         });
     }
 </script>
