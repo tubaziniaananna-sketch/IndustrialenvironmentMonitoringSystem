@@ -340,7 +340,8 @@
     window.toggleSecurity = function() {
         const isChecked = document.getElementById('swSecurity').checked;
         update(ref(db, 'Device-1/Controls'), { 
-            "SecurityMode": isChecked ? "ARMED" : "DISARMED" 
+            "SecurityMode": isChecked ? "ARMED" : "DISARMED",
+            "isSecurityON": isChecked 
         });
     }
 </script>
