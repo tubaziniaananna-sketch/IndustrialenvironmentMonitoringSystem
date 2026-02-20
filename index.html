@@ -313,18 +313,13 @@
         update(ref(db, 'Device-1/Controls'), { [device]: isChecked ? "ON" : "OFF" });
     }
 
-    // FIXED: targets Device-1/isSecurityON directly (Boolean type)
+    // UPDATED: isSecurityON is back inside 'Controls' and sent as a native Boolean
     window.toggleSecurity = function() {
         const isChecked = document.getElementById('swSecurity').checked;
         
-        // 1. Update Boolean at Device-1/isSecurityON (per your link)
-        update(ref(db, 'Device-1'), { 
-            "isSecurityON": isChecked 
-        });
-
-        // 2. Update String for UI logic
         update(ref(db, 'Device-1/Controls'), { 
-            "SecurityMode": isChecked ? "ARMED" : "DISARMED"
+            "SecurityMode": isChecked ? "ARMED" : "DISARMED",
+            "isSecurityON": isChecked // Sending Boolean (true/false)
         });
     }
 </script>
