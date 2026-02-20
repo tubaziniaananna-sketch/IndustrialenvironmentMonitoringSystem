@@ -58,13 +58,10 @@
         }
         .pulse-active { animation: pulse-red 2s infinite; }
         
-        /* Alert background state */
         body.hazard-bg { background-color: #fee2e2; }
 
-        /* Toggle Switches */
         .form-switch .form-check-input { width: 3em; height: 1.5em; cursor: pointer; }
         
-        /* Theft Banner */
         .theft-banner {
             display: none;
             background-color: #dc2626;
@@ -251,7 +248,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // 1. LISTEN TO SENSORS
+    // 1. SENSOR LISTENERS
     const statusRef = ref(db, 'Device-1/Status');
     onValue(statusRef, (snapshot) => {
         const data = snapshot.val();
@@ -273,7 +270,6 @@
         document.getElementById('barGas').style.width = Math.min((gas/1000)*100, 100) + "%";
         document.getElementById('barSmoke').style.width = Math.min((smoke/1000)*100, 100) + "%";
 
-        // Motion & Vibration Display
         const vibEl = document.getElementById('valVib');
         vibEl.innerText = (vib == "1" || vib == 1) ? "DETECTED!" : "CLEAR";
         vibEl.className = (vib == "1") ? "display-6 mb-0 fw-bold text-danger" : "display-6 mb-0 fw-bold text-muted";
@@ -283,24 +279,22 @@
         motEl.className = (pir == "1") ? "display-6 mb-0 fw-bold text-warning" : "display-6 mb-0 fw-bold text-muted";
     });
 
-    // 2. LISTEN TO CONTROLS (Sync switch positions)
+    // 2. CONTROL SYNC
     onValue(ref(db, 'Device-1/Controls'), (snapshot) => {
         const ctrl = snapshot.val();
         if (!ctrl) return;
 
-        // Sync visual switch state with database
         document.getElementById('swExFan').checked = (ctrl.ExFan === "ON");
         document.getElementById('swCooling').checked = (ctrl.Cooling === "ON");
         document.getElementById('swSprinkler').checked = (ctrl.Sprinkler === "ON");
         document.getElementById('swSecurity').checked = (ctrl.SecurityMode === "ARMED");
 
-        // Visual feedback for Icons (Spinning if ON)
         updateIcon('fanIcon', ctrl.ExFan === "ON", 'text-danger');
         updateIcon('coolFanIcon', ctrl.Cooling === "ON", 'text-primary');
         updateIcon('sprinklerIcon', ctrl.Sprinkler === "ON", 'text-info');
     });
 
-    // 3. LISTEN TO ALERTS (Theft & Hazard)
+    // 3. ALERT LISTENERS
     onValue(ref(db, 'Device-1/Alert'), (snapshot) => {
         const alerts = snapshot.val();
         if (!alerts) return;
@@ -308,10 +302,9 @@
         const isTheft = alerts.Theft === true;
         const banner = document.getElementById('theftBanner');
         
-        // Theft Banner Logic
         if(isTheft) {
             banner.style.display = "block";
-            document.body.classList.add('hazard-bg'); // Reuse hazard background
+            document.body.classList.add('hazard-bg');
         } else {
             banner.style.display = "none";
             document.body.classList.remove('hazard-bg');
@@ -329,7 +322,7 @@
         }
     }
 
-    // 4. MANUAL CONTROL FUNCTIONS
+    // 4. MANUAL CONTROLS
     window.toggleRelay = function(device) {
         const id = 'sw' + device;
         const isChecked = document.getElementById(id).checked;
@@ -337,11 +330,12 @@
         update(ref(db), { [path]: isChecked ? "ON" : "OFF" });
     }
 
+    // UPDATED: isSecurityON is now a BOOLEAN type
     window.toggleSecurity = function() {
         const isChecked = document.getElementById('swSecurity').checked;
         update(ref(db, 'Device-1/Controls'), { 
             "SecurityMode": isChecked ? "ARMED" : "DISARMED",
-            "isSecurityON": isChecked 
+            "isSecurityON": isChecked  // boolean: true / false
         });
     }
 </script>
