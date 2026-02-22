@@ -4,88 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Industrial Monitor | Sky Edition v3</title>
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-
     <style>
-        :root {
-            --bg-body: #f0f9ff;
-            --bg-card: #ffffff;
-            --text-main: #0c4a6e;
-            --text-muted: #64748b;
-            --accent-border: #bae6fd;
-            --fan-color: #cbd5e1;
-        }
-
-        body { 
-            background-color: var(--bg-body); 
-            color: var(--text-main);
-            font-family: 'Segoe UI', sans-serif; 
-            transition: background-color 0.5s ease;
-        }
-
-        .card { 
-            background-color: var(--bg-card); 
-            border: 1px solid var(--accent-border); 
-            border-radius: 16px; 
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); 
-        }
-
-        .badge.bg-light { 
-            background-color: #e0f2fe !important; 
-            color: #0284c7 !important; 
-            border: 1px solid #bae6fd !important;
-        }
-        
+        :root { --bg-body: #f0f9ff; --bg-card: #ffffff; --text-main: #0c4a6e; --accent-border: #bae6fd; --fan-color: #cbd5e1; }
+        body { background-color: var(--bg-body); color: var(--text-main); font-family: 'Segoe UI', sans-serif; transition: 0.5s; }
+        .card { background-color: var(--bg-card); border: 1px solid var(--accent-border); border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
         .progress { background-color: #e2e8f0; overflow: hidden; }
-
-        .system-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1rem 0.5rem;
-            border-bottom: 1px solid var(--accent-border);
-        }
-
+        .system-item { display: flex; align-items: center; justify-content: space-between; padding: 1rem 0.5rem; border-bottom: 1px solid var(--accent-border); }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         .spin-active { animation: spin 0.8s linear infinite; }
-
-        @keyframes pulse-red {
-            0% { border-color: rgba(239, 68, 68, 0.8); }
-            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
-            100% { border-color: rgba(239, 68, 68, 0.8); }
-        }
-        .pulse-active { animation: pulse-red 2s infinite; }
-        
-        body.hazard-bg { background-color: #fee2e2; }
-
+        .hazard-bg { background-color: #fee2e2 !important; }
         .form-switch .form-check-input { width: 3em; height: 1.5em; cursor: pointer; }
         
-        .theft-banner {
-            display: none;
-            background-color: #dc2626;
-            color: white;
-            text-align: center;
-            padding: 10px;
-            font-weight: bold;
-            letter-spacing: 1px;
-            animation: pulse-red 1s infinite;
-        }
+        /* Updated Theft Banner */
+        .theft-banner { display: none; background-color: #dc2626; color: white; text-align: center; padding: 12px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div id="theftBanner" class="theft-banner">
-    <i class="bi bi-shield-exclamation me-2"></i> INTRUDER ALERT DETECTED
+    <div class="d-flex justify-content-center align-items-center">
+        <i class="bi bi-shield-exclamation me-2 fs-5"></i> 
+        <span class="fs-5 me-4">INTRUDER ALERT DETECTED</span>
+        <button class="btn btn-light btn-sm fw-bold text-danger" onclick="stopAlert()">STOP ALERT</button>
+    </div>
 </div>
 
 <div class="container py-5">
     <div class="row mb-5 text-center">
         <div class="col-12">
-            <h1 class="fw-bold display-5" style="color: #0284c7;">
-                <i class="bi bi-clouds-fill me-2"></i>Lab Monitor <span style="font-weight: 300;">Sky</span>
-            </h1>
+            <h1 class="fw-bold display-5" style="color: #0284c7;"><i class="bi bi-clouds-fill me-2"></i>Lab Monitor <span style="font-weight: 300;">Sky</span></h1>
             <p class="text-muted">Device-1 Status Panel</p>
         </div>
     </div>
@@ -93,139 +42,28 @@
     <div class="row g-4">
         <div class="col-lg-8">
             <div class="row g-4">
-                <div class="col-md-6">
-                    <div class="card h-100 p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h6 class="text-muted fw-bold text-uppercase ls-1"><i class="bi bi-thermometer-half me-2"></i>Temp</h6>
-                            <span class="badge bg-light">DHT-22</span>
-                        </div>
-                        <div class="text-center mt-2">
-                            <h2 class="display-4 mb-0 fw-bold"><span id="valTemp">--</span><small class="fs-4 text-muted">°C</small></h2>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="card h-100 p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h6 class="text-muted fw-bold text-uppercase ls-1"><i class="bi bi-droplet-half me-2"></i>Humidity</h6>
-                            <span class="badge bg-light">DHT-22</span>
-                        </div>
-                        <div class="text-center mt-2">
-                            <h2 class="display-4 mb-0 fw-bold"><span id="valHum">--</span><small class="fs-4 text-muted"> %</small></h2>
-                            <div class="progress mt-4 mb-2" style="height: 6px; border-radius: 10px;">
-                                <div id="barHum" class="progress-bar bg-info" style="width: 0%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div id="cardVib" class="card h-100 p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h6 class="text-muted fw-bold text-uppercase"><i class="bi bi-activity me-2"></i>Vibration</h6>
-                            <span class="badge bg-light">SW-420</span>
-                        </div>
-                        <div class="text-center mt-2">
-                            <h3 id="valVib" class="display-6 mb-0 fw-bold text-muted">CLEAR</h3>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div id="cardMotion" class="card h-100 p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h6 class="text-muted fw-bold text-uppercase"><i class="bi bi-person-walking me-2"></i>Motion</h6>
-                            <span class="badge bg-light">PIR</span>
-                        </div>
-                        <div class="text-center mt-2">
-                            <h3 id="valMotion" class="display-6 mb-0 fw-bold text-muted">CLEAR</h3>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="card h-100 p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h6 class="text-muted fw-bold text-uppercase"><i class="bi bi-fire me-2"></i>Combustible</h6>
-                            <span class="badge bg-warning text-dark">MQ-2</span>
-                        </div>
-                        <div class="text-center mt-2">
-                            <h2 class="display-4 mb-0 fw-bold"><span id="valSmoke">--</span><small class="fs-4 text-muted"> PPM</small></h2>
-                            <div class="progress mt-4 mb-2" style="height: 8px; border-radius: 10px;">
-                                <div id="barSmoke" class="progress-bar bg-warning" style="width: 0%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="card h-100 p-4">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h6 class="text-muted fw-bold text-uppercase"><i class="bi bi-cloud-haze2 me-2"></i>Air Quality</h6>
-                            <span class="badge bg-success">MQ-135</span>
-                        </div>
-                        <div class="text-center mt-2">
-                            <h2 class="display-4 mb-0 fw-bold"><span id="valGas">--</span><small class="fs-4 text-muted"> PPM</small></h2>
-                            <div class="progress mt-4 mb-2" style="height: 8px; border-radius: 10px;">
-                                <div id="barGas" class="progress-bar bg-success" style="width: 0%"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <div class="col-md-6"><div class="card h-100 p-4"><h6>Temp</h6><h2 class="display-4 fw-bold"><span id="valTemp">--</span><small class="fs-4 text-muted">°C</small></h2></div></div>
+                <div class="col-md-6"><div class="card h-100 p-4"><h6>Humidity</h6><h2 class="display-4 fw-bold"><span id="valHum">--</span><small class="fs-4 text-muted">%</small></h2><div class="progress mt-2"><div id="barHum" class="progress-bar bg-info" style="width: 0%"></div></div></div></div>
+                <div class="col-md-6"><div class="card h-100 p-4"><h6>Vibration</h6><h3 id="valVib" class="fw-bold text-muted">CLEAR</h3></div></div>
+                <div class="col-md-6"><div class="card h-100 p-4"><h6>Motion</h6><h3 id="valMotion" class="fw-bold text-muted">CLEAR</h3></div></div>
+                <div class="col-md-6"><div class="card h-100 p-4"><h6>Combustible</h6><h2 class="display-4 fw-bold"><span id="valSmoke">--</span><small class="fs-4 text-muted"> PPM</small></h2><div class="progress mt-2"><div id="barSmoke" class="progress-bar bg-warning" style="width: 0%"></div></div></div></div>
+                <div class="col-md-6"><div class="card h-100 p-4"><h6>Air Quality</h6><h2 class="display-4 fw-bold"><span id="valGas">--</span><small class="fs-4 text-muted"> PPM</small></h2><div class="progress mt-2"><div id="barGas" class="progress-bar bg-success" style="width: 0%"></div></div></div></div>
             </div>
         </div>
 
         <div class="col-lg-4">
-            <div id="cardAlert" class="card h-100"> 
-                <div class="card-header bg-transparent text-muted text-center fw-bold py-3 border-bottom">
-                    CONTROLS & SECURITY
-                </div>
-                <div class="card-body p-4 d-flex flex-column">
-                    <div class="card bg-light border-0 mb-4 p-3">
-                        <div class="form-check form-switch d-flex justify-content-between align-items-center ps-0">
-                            <label class="form-check-label fw-bold text-danger" for="swSecurity">SECURITY MODE</label>
-                            <input class="form-check-input ms-3" type="checkbox" id="swSecurity" onclick="toggleSecurity()">
-                        </div>
-                        <small class="text-muted mt-2" style="font-size: 0.8rem">When ON, motion triggers Theft Alert.</small>
-                     </div>
-
-                    <div id="mainStatusBadge" class="badge bg-success w-100 p-3 mb-4 fs-5">SYSTEM SECURE</div>
-
-                    <div class="system-item">
-                        <div class="d-flex align-items-center">
-                            <i id="fanIcon" class="bi bi-fan fs-2 me-3" style="color: var(--fan-color);"></i>
-                            <div><h6 class="mb-0 fw-bold">Exhaust Fan</h6></div>
-                        </div>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="swExFan" onclick="toggleRelay('ExFan')">
-                        </div>
-                    </div>
-
-                    <div class="system-item">
-                        <div class="d-flex align-items-center">
-                            <i id="coolFanIcon" class="bi bi-snow fs-2 me-3" style="color: var(--fan-color);"></i>
-                            <div><h6 class="mb-0 fw-bold">Cooling Fan</h6></div>
-                        </div>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="swCooling" onclick="toggleRelay('Cooling')">
-                        </div>
-                    </div>
-
-                    <div class="system-item">
-                        <div class="d-flex align-items-center">
-                            <i id="sprinklerIcon" class="bi bi-moisture fs-2 me-3" style="color: var(--fan-color);"></i>
-                            <div><h6 class="mb-0 fw-bold">Sprinkler</h6></div>
-                        </div>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="swSprinkler" onclick="toggleRelay('Sprinkler')">
-                        </div>
-                    </div>
-
-                    <div class="mt-auto pt-3 text-center text-muted" style="font-size: 0.75rem;">
-                        <i class="bi bi-info-circle me-1"></i> Safety sensors override manual controls.
+            <div class="card h-100 p-4">
+                <div class="card bg-light border-0 mb-4 p-3">
+                    <div class="form-check form-switch d-flex justify-content-between align-items-center ps-0">
+                        <label class="fw-bold text-danger">SECURITY MODE</label>
+                        <input class="form-check-input" type="checkbox" id="swSecurity" onclick="toggleSecurity()">
                     </div>
                 </div>
+                <div id="mainStatusBadge" class="badge bg-success w-100 p-3 mb-4 fs-5">SYSTEM SECURE</div>
+                
+                <div class="system-item"><i id="fanIcon" class="bi bi-fan fs-2"></i><h6>Exhaust</h6><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="swExFan" onclick="toggleRelay('ExFan')"></div></div>
+                <div class="system-item"><i id="coolFanIcon" class="bi bi-snow fs-2"></i><h6>Cooling</h6><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="swCooling" onclick="toggleRelay('Cooling')"></div></div>
+                <div class="system-item"><i id="sprinklerIcon" class="bi bi-moisture fs-2"></i><h6>Sprinkler</h6><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="swSprinkler" onclick="toggleRelay('Sprinkler')"></div></div>
             </div>
         </div>
     </div>
@@ -248,96 +86,67 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // 1. SENSOR LISTENERS
-    const statusRef = ref(db, 'Device-1/Status');
-    onValue(statusRef, (snapshot) => {
-        const data = snapshot.val();
-        if (!data) return;
-
-        const temp = parseFloat(data.Temp) || 0;
-        const hum = parseFloat(data.Hum) || 0;
-        const gas = parseInt(data["MQ-135"]) || 0;
-        const smoke = parseInt(data["MQ-2"]) || 0;
-        const pir = data.PIR;
-        const vib = data.Vibration;
-
-        document.getElementById('valTemp').innerText = temp || "--";
-        document.getElementById('valHum').innerText = hum || "--";
-        document.getElementById('valGas').innerText = gas || "--";
-        document.getElementById('valSmoke').innerText = smoke || "--";
-
-        document.getElementById('barHum').style.width = hum + "%";
-        document.getElementById('barGas').style.width = Math.min((gas/1000)*100, 100) + "%";
-        document.getElementById('barSmoke').style.width = Math.min((smoke/1000)*100, 100) + "%";
-
-        const vibEl = document.getElementById('valVib');
-        vibEl.innerText = (vib == "1" || vib == 1) ? "DETECTED!" : "CLEAR";
-        vibEl.className = (vib == "1") ? "display-6 mb-0 fw-bold text-danger" : "display-6 mb-0 fw-bold text-muted";
-
-        const motEl = document.getElementById('valMotion');
-        motEl.innerText = (pir == "1" || pir == 1) ? "ACTIVITY" : "CLEAR";
-        motEl.className = (pir == "1") ? "display-6 mb-0 fw-bold text-warning" : "display-6 mb-0 fw-bold text-muted";
-    });
-
-    // 2. CONTROL SYNC
-    onValue(ref(db, 'Device-1/Controls'), (snapshot) => {
-        const ctrl = snapshot.val();
-        if (!ctrl) return;
-
-        document.getElementById('swExFan').checked = (ctrl.ExFan === "ON");
-        document.getElementById('swCooling').checked = (ctrl.Cooling === "ON");
-        document.getElementById('swSprinkler').checked = (ctrl.Sprinkler === "ON");
-        document.getElementById('swSecurity').checked = (ctrl.SecurityMode === "ARMED");
-
-        updateIcon('fanIcon', ctrl.ExFan === "ON", 'text-danger');
-        updateIcon('coolFanIcon', ctrl.Cooling === "ON", 'text-primary');
-        updateIcon('sprinklerIcon', ctrl.Sprinkler === "ON", 'text-info');
-    });
-
-    // 3. ALERT LISTENERS
-    onValue(ref(db, 'Device-1/Alert'), (snapshot) => {
-        const alerts = snapshot.val();
-        if (!alerts) return;
-
-        const isTheft = alerts.Theft === true;
-        const banner = document.getElementById('theftBanner');
+    // READ SENSORS
+    onValue(ref(db, 'Device-1/Status'), (snap) => {
+        const d = snap.val(); if(!d) return;
+        document.getElementById('valTemp').innerText = d.Temp;
+        document.getElementById('valHum').innerText = d.Hum;
+        document.getElementById('valGas').innerText = d["MQ-135"];
+        document.getElementById('valSmoke').innerText = d["MQ-2"];
         
-        if(isTheft) {
-            banner.style.display = "block";
-            document.body.classList.add('hazard-bg');
-        } else {
-            banner.style.display = "none";
-            document.body.classList.remove('hazard-bg');
-        }
+        document.getElementById('valVib').innerText = d.Vibration == 1 ? "DETECTED!" : "CLEAR";
+        document.getElementById('valVib').className = d.Vibration == 1 ? "fw-bold text-danger" : "fw-bold text-muted";
+        
+        document.getElementById('valMotion').innerText = d.PIR == 1 ? "ACTIVITY" : "CLEAR";
+        document.getElementById('valMotion').className = d.PIR == 1 ? "fw-bold text-warning" : "fw-bold text-muted";
+        
+        document.getElementById('barHum').style.width = d.Hum + "%";
+        document.getElementById('barGas').style.width = Math.min((d["MQ-135"]/1000)*100, 100) + "%";
+        document.getElementById('barSmoke').style.width = Math.min((d["MQ-2"]/1000)*100, 100) + "%";
     });
 
-    function updateIcon(id, isActive, colorClass) {
-        const el = document.getElementById(id);
-        if(isActive) {
-            el.classList.add('spin-active', colorClass);
-            el.style.color = ""; 
-        } else {
-            el.classList.remove('spin-active', colorClass);
-            el.style.color = "var(--fan-color)";
-        }
-    }
+    // READ CONTROLS (Sync UI Switches to DB State)
+    onValue(ref(db, 'Device-1/Controls'), (snap) => {
+        const c = snap.val(); if(!c) return;
+        document.getElementById('swExFan').checked = (c.ExFan === "ON");
+        document.getElementById('swCooling').checked = (c.Cooling === "ON");
+        document.getElementById('swSprinkler').checked = (c.Sprinkler === "ON");
+        document.getElementById('swSecurity').checked = (c.SecurityMode === "ARMED");
+        
+        // Update Icons Animation
+        document.getElementById('fanIcon').classList.toggle('spin-active', c.ExFan === "ON");
+        document.getElementById('coolFanIcon').classList.toggle('spin-active', c.Cooling === "ON");
+    });
 
-    // 4. MANUAL CONTROLS
-    window.toggleRelay = function(device) {
-        const id = 'sw' + device;
-        const isChecked = document.getElementById(id).checked;
-        const path = 'Device-1/Controls/' + device;
-        update(ref(db), { [path]: isChecked ? "ON" : "OFF" });
-    }
+    // READ THEFT ALERTS
+    onValue(ref(db, 'Device-1/Alert/Theft'), (snap) => {
+        const isTheft = snap.val();
+        document.getElementById('theftBanner').style.display = isTheft ? "block" : "none";
+        document.body.classList.toggle('hazard-bg', isTheft);
+    });
 
-    // UPDATED: isSecurityON is now a BOOLEAN type
-    window.toggleSecurity = function() {
+    // --- BUTTON AND SWITCH FUNCTIONS WRITING TO DB ---
+
+    // Toggle Relays (Exhaust, Cooling, Sprinkler)
+    window.toggleRelay = (dev) => {
+        const isChecked = document.getElementById('sw'+dev).checked;
+        update(ref(db, 'Device-1/Controls'), { [dev]: isChecked ? "ON" : "OFF" });
+    };
+
+    // Toggle Security Mode
+    window.toggleSecurity = () => {
         const isChecked = document.getElementById('swSecurity').checked;
-        update(ref(db, 'Device-1/Controls'), { 
-            "SecurityMode": isChecked ? "ARMED" : "DISARMED",
-            "isSecurityON": isChecked  // boolean: true / false
-        });
-    }
+        update(ref(db, 'Device-1/Controls'), { SecurityMode: isChecked ? "ARMED" : "DISARMED" });
+    };
+
+    // Stop Alert Function
+    window.stopAlert = () => {
+        // 1. Clear the theft flag in the database
+        update(ref(db, 'Device-1/Alert'), { Theft: false });
+        
+        // 2. Disarm security mode so it doesn't instantly re-trigger if you are standing in front of the PIR sensor
+        update(ref(db, 'Device-1/Controls'), { SecurityMode: "DISARMED" });
+    };
 </script>
 </body>
 </html>
