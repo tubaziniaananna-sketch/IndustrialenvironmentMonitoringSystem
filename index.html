@@ -17,8 +17,15 @@
         .hazard-bg { background-color: #fee2e2 !important; }
         .form-switch .form-check-input { width: 3em; height: 1.5em; cursor: pointer; }
         
-        /* Updated Theft Banner */
         .theft-banner { display: none; background-color: #dc2626; color: white; text-align: center; padding: 12px; font-weight: bold; }
+        
+        /* Offline pulse effect */
+        @keyframes pulse-offline {
+            0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+        }
+        .offline-pulse { animation: pulse-offline 2s infinite; }
     </style>
 </head>
 <body>
@@ -44,8 +51,8 @@
             <div class="row g-4">
                 <div class="col-md-6"><div class="card h-100 p-4"><h6>Temp</h6><h2 class="display-4 fw-bold"><span id="valTemp">--</span><small class="fs-4 text-muted">°C</small></h2></div></div>
                 <div class="col-md-6"><div class="card h-100 p-4"><h6>Humidity</h6><h2 class="display-4 fw-bold"><span id="valHum">--</span><small class="fs-4 text-muted">%</small></h2><div class="progress mt-2"><div id="barHum" class="progress-bar bg-info" style="width: 0%"></div></div></div></div>
-                <div class="col-md-6"><div class="card h-100 p-4"><h6>Vibration</h6><h3 id="valVib" class="fw-bold text-muted">CLEAR</h3></div></div>
-                <div class="col-md-6"><div class="card h-100 p-4"><h6>Motion</h6><h3 id="valMotion" class="fw-bold text-muted">CLEAR</h3></div></div>
+                <div class="col-md-6"><div class="card h-100 p-4"><h6>Vibration</h6><h3 id="valVib" class="fw-bold text-muted">--</h3></div></div>
+                <div class="col-md-6"><div class="card h-100 p-4"><h6>Motion</h6><h3 id="valMotion" class="fw-bold text-muted">--</h3></div></div>
                 <div class="col-md-6"><div class="card h-100 p-4"><h6>Combustible</h6><h2 class="display-4 fw-bold"><span id="valSmoke">--</span><small class="fs-4 text-muted"> PPM</small></h2><div class="progress mt-2"><div id="barSmoke" class="progress-bar bg-warning" style="width: 0%"></div></div></div></div>
                 <div class="col-md-6"><div class="card h-100 p-4"><h6>Air Quality</h6><h2 class="display-4 fw-bold"><span id="valGas">--</span><small class="fs-4 text-muted"> PPM</small></h2><div class="progress mt-2"><div id="barGas" class="progress-bar bg-success" style="width: 0%"></div></div></div></div>
             </div>
@@ -59,7 +66,8 @@
                         <input class="form-check-input" type="checkbox" id="swSecurity" onclick="toggleSecurity()">
                     </div>
                 </div>
-                <div id="mainStatusBadge" class="badge bg-success w-100 p-3 mb-4 fs-5">SYSTEM SECURE</div>
+                
+                <div id="mainStatusBadge" class="badge bg-secondary w-100 p-3 mb-4 fs-5">CONNECTING...</div>
                 
                 <div class="system-item"><i id="fanIcon" class="bi bi-fan fs-2"></i><h6>Exhaust</h6><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="swExFan" onclick="toggleRelay('ExFan')"></div></div>
                 <div class="system-item"><i id="coolFanIcon" class="bi bi-snow fs-2"></i><h6>Cooling</h6><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="swCooling" onclick="toggleRelay('Cooling')"></div></div>
@@ -86,9 +94,49 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // READ SENSORS
+    // --- CONNECTION WATCHDOG ---
+    let offlineTimer;
+    const TIMEOUT_MS = 8000; // 8 Seconds without heartbeat = Offline
+
+    function markOffline() {
+        const badge = document.getElementById('mainStatusBadge');
+        badge.innerText = "⚠️ ESP32 OFFLINE";
+        badge.className = "badge bg-danger w-100 p-3 mb-4 fs-5 offline-pulse";
+
+        // Reset text to "--"
+        document.getElementById('valTemp').innerText = "--";
+        document.getElementById('valHum').innerText = "--";
+        document.getElementById('valGas').innerText = "--";
+        document.getElementById('valSmoke').innerText = "--";
+        
+        // Reset motion/vib
+        document.getElementById('valVib').innerText = "--";
+        document.getElementById('valVib').className = "fw-bold text-muted";
+        document.getElementById('valMotion').innerText = "--";
+        document.getElementById('valMotion').className = "fw-bold text-muted";
+
+        // Reset progress bars
+        document.getElementById('barHum').style.width = "0%";
+        document.getElementById('barGas').style.width = "0%";
+        document.getElementById('barSmoke').style.width = "0%";
+    }
+
+    // Start the timer initially in case the ESP32 is already offline when page loads
+    offlineTimer = setTimeout(markOffline, TIMEOUT_MS);
+
+    // READ SENSORS & HEARTBEAT
     onValue(ref(db, 'Device-1/Status'), (snap) => {
-        const d = snap.val(); if(!d) return;
+        const d = snap.val(); 
+        if(!d) return;
+
+        // The ESP32 sent data! Reset the countdown timer.
+        clearTimeout(offlineTimer);
+        const badge = document.getElementById('mainStatusBadge');
+        badge.innerText = "SYSTEM ONLINE";
+        badge.className = "badge bg-success w-100 p-3 mb-4 fs-5";
+        offlineTimer = setTimeout(markOffline, TIMEOUT_MS);
+
+        // Update Values
         document.getElementById('valTemp').innerText = d.Temp;
         document.getElementById('valHum').innerText = d.Hum;
         document.getElementById('valGas').innerText = d["MQ-135"];
@@ -126,25 +174,18 @@
     });
 
     // --- BUTTON AND SWITCH FUNCTIONS WRITING TO DB ---
-
-    // Toggle Relays (Exhaust, Cooling, Sprinkler)
     window.toggleRelay = (dev) => {
         const isChecked = document.getElementById('sw'+dev).checked;
         update(ref(db, 'Device-1/Controls'), { [dev]: isChecked ? "ON" : "OFF" });
     };
 
-    // Toggle Security Mode
     window.toggleSecurity = () => {
         const isChecked = document.getElementById('swSecurity').checked;
         update(ref(db, 'Device-1/Controls'), { SecurityMode: isChecked ? "ARMED" : "DISARMED" });
     };
 
-    // Stop Alert Function
     window.stopAlert = () => {
-        // 1. Clear the theft flag in the database
         update(ref(db, 'Device-1/Alert'), { Theft: false });
-        
-        // 2. Disarm security mode so it doesn't instantly re-trigger if you are standing in front of the PIR sensor
         update(ref(db, 'Device-1/Controls'), { SecurityMode: "DISARMED" });
     };
 </script>
