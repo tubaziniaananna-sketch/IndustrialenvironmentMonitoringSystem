@@ -49,7 +49,7 @@
     <div class="row g-4">
         <div class="col-lg-8">
             <div class="row g-4">
-                <div class="col-md-6"><div class="card h-100 p-4"><h6>Temp</h6><h2 class="display-4 fw-bold"><span id="valTemp">--</span><small class="fs-4 text-muted">°C</small></h2></div></div>
+                <div class="col-md-6"><div class="card h-100 p-4"><h6>Temp</h6><h2 class="display-4 fw-bold mb-0"><span id="valTemp">--</span><small class="fs-4 text-muted">°C</small></h2><div class="mt-auto pt-2 text-muted small"><i class="bi bi-cpu-fill text-primary"></i> AI Threshold: <span id="valThreshold" class="fw-bold">--</span> °C</div></div></div>
                 <div class="col-md-6"><div class="card h-100 p-4"><h6>Humidity</h6><h2 class="display-4 fw-bold"><span id="valHum">--</span><small class="fs-4 text-muted">%</small></h2><div class="progress mt-2"><div id="barHum" class="progress-bar bg-info" style="width: 0%"></div></div></div></div>
                 <div class="col-md-6"><div class="card h-100 p-4"><h6>Vibration</h6><h3 id="valVib" class="fw-bold text-muted">--</h3></div></div>
                 <div class="col-md-6"><div class="card h-100 p-4"><h6>Motion</h6><h3 id="valMotion" class="fw-bold text-muted">--</h3></div></div>
@@ -105,6 +105,7 @@
 
         // Reset text to "--"
         document.getElementById('valTemp').innerText = "--";
+        document.getElementById('valThreshold').innerText = "--"; // Reset threshold
         document.getElementById('valHum').innerText = "--";
         document.getElementById('valGas').innerText = "--";
         document.getElementById('valSmoke').innerText = "--";
@@ -138,6 +139,10 @@
 
         // Update Values
         document.getElementById('valTemp').innerText = d.Temp;
+        
+        // Update Threshold (Formatted to 1 decimal place if exists)
+        document.getElementById('valThreshold').innerText = d.DynThreshold ? Number(d.DynThreshold).toFixed(1) : "--";
+        
         document.getElementById('valHum').innerText = d.Hum;
         document.getElementById('valGas').innerText = d["MQ-135"];
         document.getElementById('valSmoke').innerText = d["MQ-2"];
